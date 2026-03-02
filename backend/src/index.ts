@@ -27,10 +27,35 @@ const httpServer = createServer(app);
 // @ts-ignore
 import cors from "cors";
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://localhost:5174",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "*",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      
+      // Check if origin is in allowed list
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      // Log blocked origins in development
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(`CORS blocked origin: ${origin}`);
+        return callback(null, true); // Allow in dev
+      }
+      
+      callback(new Error("Not allowed by CORS policy"));
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
