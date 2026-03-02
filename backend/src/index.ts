@@ -41,20 +41,33 @@ console.log("Allowed CORS origins:", allowedOrigins);
 app.use(
   cors({
     origin: (origin, callback) => {
+      // debug log each origin request
+      console.log("CORS origin check, incoming origin =", origin);
+      
       // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
+
+      // Normalize origin (remove trailing slash)
+      const normalized = origin.replace(/\/+$/, "");
       
       // Check if origin is in allowed list
-      if (allowedOrigins.includes(origin)) {
+      if (allowedOrigins.includes(normalized)) {
         return callback(null, true);
       }
       
+      // allow any subdomain of vercel.app just in case
+      if (/\.vercel\.app$/i.test(normalized)) {
+        console.log("Allowing vercel.app origin via regex check", normalized);
+        return callback(null, true);
+      }
+
       // Log blocked origins in development
       if (process.env.NODE_ENV !== "production") {
-        console.warn(`CORS blocked origin: ${origin}`);
+        console.warn(`CORS blocked origin: ${normalized}`);
         return callback(null, true); // Allow in dev
       }
       
+      console.error(`Rejecting origin: ${normalized}`);
       callback(new Error("Not allowed by CORS policy"));
     },
     credentials: true,
