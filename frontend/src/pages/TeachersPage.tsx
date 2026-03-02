@@ -39,7 +39,6 @@ export default function TeachersPage() {
   const [isClassTeacher, setIsClassTeacher] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isAuthForPassword, setIsAuthForPassword] = useState(false);
-  const [originalPassword, setOriginalPassword] = useState('');
   const classesQuery = useClasses();
   const classes = Array.isArray(classesQuery.data) ? classesQuery.data : [];
   const { toast } = useToast();
@@ -150,10 +149,8 @@ export default function TeachersPage() {
       const ans = prompt('Enter admin password to unlock this field');
       if (ans === 'admin') {
         setIsAuthForPassword(true);
-        setShowPassword(true);
-        if (originalPassword) {
-          reset({ ...watch(), password: originalPassword });
-        }
+        setShowPassword(false);
+        toast({ description: 'Password field unlocked – enter a new value to change it.' });
       } else {
         toast({ title: 'Incorrect admin password', variant: 'destructive' });
       }
@@ -182,7 +179,7 @@ export default function TeachersPage() {
     });
     setShowPassword(false);
     setIsAuthForPassword(false);
-    setOriginalPassword(teacher.password || '');
+    // don't store the password; it's hashed and not recoverable
     // Extract IDs from subject objects or use IDs directly
     const subjectIds = (teacher.subjects || []).map((s: any) => 
       typeof s === 'string' ? s : s._id
@@ -284,7 +281,7 @@ export default function TeachersPage() {
                   )}
                   {editingId && isAuthForPassword && (
                     <p className="text-xs text-muted-foreground">
-                      Password unlocked - you may view or change it.
+                      Password field unlocked – the current password is hidden for security. Enter a new one to change it.
                     </p>
                   )}
                 </div>

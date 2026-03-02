@@ -76,8 +76,6 @@ export default function StudentsPage(): React.ReactElement {
   const [showPassword, setShowPassword] = useState(false);
   // admin authentication needed to reveal/edit existing password
   const [isAuthForPassword, setIsAuthForPassword] = useState(false);
-  // hold the current student's password so we can populate it after auth
-  const [originalPassword, setOriginalPassword] = useState('');
   const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<any>();
 
   // Safe data extraction with defensive checks
@@ -153,11 +151,9 @@ export default function StudentsPage(): React.ReactElement {
       const ans = prompt('Enter admin password to unlock this field');
       if (ans === 'admin') {
         setIsAuthForPassword(true);
-        // also reveal immediately
-        setShowPassword(true);
-        if (originalPassword) {
-          reset({ ...watch(), password: originalPassword });
-        }
+        // field is now unlocked for editing; existing value is hidden for security
+        setShowPassword(false); // keep masked since we can't show real password
+        toast({ description: 'Password field unlocked – enter a new value to change it.' });
       } else {
         toast({ title: 'Incorrect admin password', variant: 'destructive' });
       }
@@ -188,7 +184,8 @@ export default function StudentsPage(): React.ReactElement {
       idProofNumber: (student as any).idProofNumber || '',
       category: (student as any).category || '',
     });
-    setOriginalPassword(student.password || '');
+    // note: password is hashed by backend, so we don't store it here
+
     setShowPassword(false);
     setIsAuthForPassword(false);
     setIsDialogOpen(true);
@@ -304,7 +301,7 @@ export default function StudentsPage(): React.ReactElement {
                   )}
                   {editingId && isAuthForPassword && (
                     <p className="text-xs text-muted-foreground">
-                      Password unlocked - you may view or change it.
+                      Password field unlocked – the current password is hidden for security. Enter a new one to change it.
                     </p>
                   )}
                 </div>
