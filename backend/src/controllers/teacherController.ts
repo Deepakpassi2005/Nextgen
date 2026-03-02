@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { Teacher } from '../models/Teacher';
 import { sendSuccess, sendError } from '../utils/response';
 import { requireFields } from '../utils/validators';
+import { logActivity } from '../services/activityService';
+import { AuthRequest } from '../middlewares/authMiddleware';
 
 const teacherRequired = ['name', 'email', 'password'];
 
@@ -59,6 +61,22 @@ export const createTeacher = async (req: Request, res: Response) => {
 
     const saved = await teacher.save();
     const populated = await saved.populate('subjects classes');
+    
+    // Log activity
+    const authReq = req as AuthRequest;
+    const userId = authReq.user?.id || 'system';
+    const userName = authReq.user?.name || 'System';
+    logActivity(
+      'teacher_created',
+      `Teacher Created: ${teacher.name}`,
+      `Teacher "${teacher.name}" has been added`,
+      userId,
+      userName,
+      saved._id.toString(),
+      'teacher'
+    ).catch(() => {});
+
+    
     return sendSuccess(res, populated, 201);
   } catch (err: any) {
     console.error('[teacher.createTeacher]', err);
@@ -79,6 +97,22 @@ export const updateTeacher = async (req: Request, res: Response) => {
     }).populate('subjects classes');
 
     if (!updated) return sendError(res, 'Teacher not found', 404);
+    
+    // Log activity
+    const authReq = req as AuthRequest;
+    const userId = authReq.user?.id || 'system';
+    const userName = authReq.user?.name || 'System';
+    logActivity(
+      'teacher_updated',
+      `Teacher Updated: ${updated.name}`,
+      `Teacher "${updated.name}" has been modified`,
+      userId,
+      userName,
+      updated._id.toString(),
+      'teacher'
+    ).catch(() => {});
+
+    
     return sendSuccess(res, updated);
   } catch (err: any) {
     console.error('[teacher.updateTeacher]', err);
@@ -91,6 +125,22 @@ export const deleteTeacher = async (req: Request, res: Response) => {
   try {
     const deleted = await Teacher.findByIdAndDelete(req.params.id);
     if (!deleted) return sendError(res, 'Teacher not found', 404);
+    
+    // Log activity
+    const authReq = req as AuthRequest;
+    const userId = authReq.user?.id || 'system';
+    const userName = authReq.user?.name || 'System';
+    logActivity(
+      'teacher_deleted',
+      `Teacher Deleted: ${deleted.name}`,
+      `Teacher "${deleted.name}" has been removed`,
+      userId,
+      userName,
+      deleted._id.toString(),
+      'teacher'
+    ).catch(() => {});
+
+    
     return sendSuccess(res, { message: 'Teacher deleted' });
   } catch (err) {
     console.error('[teacher.deleteTeacher]', err);

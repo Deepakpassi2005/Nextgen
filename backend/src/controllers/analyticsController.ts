@@ -17,10 +17,15 @@ export const getDashboardSummary = async (req: Request, res: Response) => {
     const recentDate = new Date();
     recentDate.setDate(recentDate.getDate() - 1);
     const todayAttendance = await Attendance.find({ date: { $gte: recentDate } });
-    const presentCount = todayAttendance.filter((a) => a.present).length;
+    // Count present students across attendance records
+    const presentCount = todayAttendance.reduce((sum, att) => {
+      const p = (att.students || []).filter((s: any) => s.status === 'present').length;
+      return sum + p;
+    }, 0);
+    const totalAttendanceEntries = todayAttendance.reduce((sum, att) => sum + ((att.students || []).length), 0);
     const teacherAttendancePercentage =
-      totalTeachers > 0 && todayAttendance.length > 0
-        ? Math.round((presentCount / todayAttendance.length) * 100)
+      totalTeachers > 0 && totalAttendanceEntries > 0
+        ? Math.round((presentCount / totalAttendanceEntries) * 100)
         : 94;
 
     const allMarks = await Marks.find();

@@ -1,13 +1,15 @@
 import { Request, Response } from 'express';
+import { AuthRequest } from '../middlewares/authMiddleware';
 import { Attendance } from '../models/Attendance';
 import { sendSuccess, sendError } from '../utils/response';
 import { requireFields } from '../utils/validators';
 
-const attendanceRequired = ['studentId', 'classId', 'date'];
+const attendanceRequired = ['classId', 'date', 'students'];
+// legacy inputs may still send studentId/present
 
 export const getAttendance = async (req: Request, res: Response) => {
   try {
-    const attendance = await Attendance.find().populate('studentId classId');
+    const attendance = await Attendance.find().populate('classId teacherId students.studentId');
     return sendSuccess(res, attendance);
   } catch (err) {
     console.error('[attendance.getAttendance]', err);
@@ -17,7 +19,8 @@ export const getAttendance = async (req: Request, res: Response) => {
 
 export const getAttendanceByStudent = async (req: Request, res: Response) => {
   try {
-    const attendance = await Attendance.find({ studentId: req.params.studentId }).populate('classId');
+    const studentId = req.params.studentId;
+    const attendance = await Attendance.find({ 'students.studentId': studentId }).populate('classId');
     return sendSuccess(res, attendance);
   } catch (err) {
     console.error('[attendance.getAttendanceByStudent]', err);
@@ -25,20 +28,36 @@ export const getAttendanceByStudent = async (req: Request, res: Response) => {
   }
 };
 
-export const createAttendanceRecord = async (req: Request, res: Response) => {
+export const createAttendanceRecord = async (req: AuthRequest, res: Response) => {
   try {
     const err = requireFields(req.body, attendanceRequired);
-    if (err) return sendError(res, err, 400);
+    if (err) {
+      // try legacy path
+      const legacyErr = requireFields(req.body, ['studentId', 'classId', 'date']);
+      if (legacyErr) return sendError(res, err, 400);
+      // convert legacy to new format
+      const { studentId, classId, date, present } = req.body;
+      const teachersId = req.user?.id; // fallback if available (AuthRequest)
+      const rec = new Attendance({
+        classId,
+        date: new Date(date),
+        teacherId: teachersId,
+        students: [{ studentId, status: present ? 'present' : 'absent' }],
+      });
+      const saved = await rec.save();
+      return sendSuccess(res, saved, 201);
+    }
 
-    const record = new Attendance({
-      studentId: req.body.studentId,
-      classId: req.body.classId,
-      date: new Date(req.body.date),
-      present: req.body.present || false,
-    });
+    // normal grouped create
+    const { classId, date, students } = req.body;
+    const teacherId = req.user?.id;
+    const existing = await Attendance.findOne({ classId, date });
+    if (existing) {
+      return sendError(res, 'Attendance already exists for this class/date', 409);
+    }
+    const record = new Attendance({ classId, date, students, teacherId });
     const saved = await record.save();
-    const populated = await saved.populate('studentId classId');
-    return sendSuccess(res, populated, 201);
+    return sendSuccess(res, saved, 201);
   } catch (err: any) {
     console.error('[attendance.createAttendanceRecord]', err);
     const msg = err.message || 'Failed to create attendance record';
@@ -74,9 +93,14 @@ export const deleteAttendanceRecord = async (req: Request, res: Response) => {
 export const getAttendancePercentage = async (req: Request, res: Response) => {
   try {
     const studentId = req.params.studentId;
-    const records = await Attendance.find({ studentId });
-    const total = records.length;
-    const present = records.filter((r) => r.present).length;
+    const records = await Attendance.find({ 'students.studentId': studentId });
+    let total = 0, present = 0;
+    records.forEach((r) => {
+      r.students.forEach((s) => {
+        total++;
+        if (s.studentId.toString() === studentId && s.status === 'present') present++;
+      });
+    });
     const percentage = total > 0 ? (present / total) * 100 : 0;
     return sendSuccess(res, { total, present, percentage: Math.round(percentage) });
   } catch (err) {

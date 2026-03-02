@@ -6,7 +6,7 @@ import {
   GraduationCap, 
   BookOpen, 
   Calendar, 
-  Bell, 
+  Bell,
   BarChart3, 
   LogOut,
   Menu,
@@ -18,6 +18,7 @@ import { useStore } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { NotificationDropdown } from "@/components/shared/NotificationDropdown";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -122,11 +123,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                {navigation.find(n => n.href === location)?.name || 'Dashboard'}
              </h2>
              <div className="flex items-center space-x-4">
-               {/* Placeholders for future header items like search or notifications */}
-               <Button variant="ghost" size="icon" className="relative">
-                 <Bell className="h-5 w-5 text-muted-foreground" />
-                 <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive border-2 border-background"></span>
-               </Button>
+               <NotificationDropdown />
              </div>
           </div>
         </header>

@@ -95,6 +95,8 @@ export interface IStudent extends Document {
 
   // 9️⃣ System & Account Settings
   status: 'active' | 'inactive';
+  role?: 'admin' | 'teacher' | 'student';
+  phone?: string;
   loginUsername?: string;
   password: string;
   remarks?: string;
@@ -196,6 +198,8 @@ const StudentSchema = new Schema<IStudent>(
 
     // 9️⃣ System & Account Settings
     status: { type: String, enum: ['active', 'inactive'], default: 'active' },
+    role: { type: String, enum: ['admin','teacher','student'], default: 'student' },
+    phone: { type: String, default: '' },
     loginUsername: { type: String, default: '' },
     password: { type: String, required: true },
     remarks: { type: String, default: '' },

@@ -1,26 +1,38 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface IAttendance extends Document {
+export interface IAttendanceStudent {
   studentId: mongoose.Types.ObjectId;
+  status: 'present' | 'absent';
+}
+
+export interface IAttendance extends Document {
   classId: mongoose.Types.ObjectId;
+  teacherId: mongoose.Types.ObjectId;
   date: Date;
-  present: boolean;
+  students: IAttendanceStudent[];
   createdAt: Date;
   updatedAt: Date;
 }
 
 const AttendanceSchema = new Schema<IAttendance>(
   {
-    studentId: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
     classId: { type: Schema.Types.ObjectId, ref: 'Class', required: true },
+    teacherId: { type: Schema.Types.ObjectId, ref: 'Teacher', required: true },
     date: { type: Date, required: true },
-    present: { type: Boolean, default: false },
+    students: [
+      {
+        studentId: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
+        status: { type: String, enum: ['present', 'absent'], required: true },
+      },
+    ],
   },
   { timestamps: true }
 );
 
-// Index for efficient queries
-AttendanceSchema.index({ studentId: 1, date: 1 });
-AttendanceSchema.index({ classId: 1, date: 1 });
+// prevent duplicate attendance per class per date
+AttendanceSchema.index({ classId: 1, date: 1 }, { unique: true });
+
+// helper index for queries by student
+AttendanceSchema.index({ 'students.studentId': 1 });
 
 export const Attendance = mongoose.model<IAttendance>('Attendance', AttendanceSchema);

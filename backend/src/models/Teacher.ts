@@ -20,7 +20,9 @@ const TeacherSchema = new Schema<ITeacher>(
     // employeeId is optional and may not exist on every teacher
     // @ts-ignore
     employeeId: { type: String as any, unique: true, sparse: true },
+    phone: { type: String, default: '' },
     phoneNumber: { type: String, default: '' },
+    role: { type: String, enum: ['admin','teacher','student'], default: 'teacher' },
     qualification: { type: String, default: '' },
     experience: { type: Number, default: 0 },
     joiningDate: { type: Date },

@@ -16,6 +16,8 @@
     "start": "cd backend && npm start",
     "check": "npm run check --workspaces"
   },
-  "description": "Asset Manager - Full-stack web application"
+  "description": "Asset Manager - Full-stack web application",
+  "dependencies": {
+    "mongodb": "^7.1.0"
+  }
 }
-

@@ -1,0 +1,49 @@
+{
+    "success":  true,
+    "data":  [
+                 {
+                     "_id":  "699ea8d6a82ab4da99d371a1",
+                     "name":  "Admin User",
+                     "email":  "admin@school.test",
+                     "password":  "$2b$10$zHpTd2cH4VTjIoQWMW.l/OAzKuUZvRp7VdUfc7ULiSH3XlKB/MEsC",
+                     "phone":  "",
+                     "phoneNumber":  "",
+                     "role":  "admin",
+                     "qualification":  "",
+                     "experience":  0,
+                     "subjects":  "",
+                     "classes":  "",
+                     "isClassTeacher":  false,
+                     "department":  "",
+                     "address":  "",
+                     "emergencyContact":  "",
+                     "alternatePhone":  "",
+                     "status":  "active",
+                     "createdAt":  "2026-02-25T07:46:30.826Z",
+                     "updatedAt":  "2026-02-25T07:46:30.826Z",
+                     "__v":  0
+                 },
+                 {
+                     "_id":  "699ea8d8a82ab4da99d371a9",
+                     "name":  "John Teacher",
+                     "email":  "teacher@school.test",
+                     "password":  "$2b$10$3hfhxlpXSAGO9S7B5JKH5e96EO255z28f/OCrk5o/RwVt/3BP5Umu",
+                     "phone":  "",
+                     "phoneNumber":  "",
+                     "role":  "teacher",
+                     "qualification":  "",
+                     "experience":  0,
+                     "subjects":  "",
+                     "classes":  "",
+                     "isClassTeacher":  false,
+                     "department":  "",
+                     "address":  "",
+                     "emergencyContact":  "",
+                     "alternatePhone":  "",
+                     "status":  "active",
+                     "createdAt":  "2026-02-25T07:46:32.360Z",
+                     "updatedAt":  "2026-02-25T07:46:32.360Z",
+                     "__v":  0
+                 }
+             ]
+}

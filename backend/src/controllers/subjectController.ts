@@ -4,6 +4,7 @@ import { Class } from '../models/Class';
 import { Teacher } from '../models/Teacher';
 import { sendSuccess, sendError } from '../utils/response';
 import { requireFields } from '../utils/validators';
+import { logActivity } from '../services/activityService';
 
 const subjectRequired = ['name', 'code', 'classId'];
 
@@ -48,6 +49,21 @@ export const createSubject = async (req: Request, res: Response) => {
 
     const saved = await subject.save();
     const populated = await Subject.findById(saved._id).populate('classId teacherIds');
+
+    // log activity (non-blocking)
+    const authReq = req as any;
+    const userId = authReq.user?.id || '';
+    const userName = authReq.user?.name || 'System';
+    logActivity(
+      'subject_created',
+      `Subject Created: ${subject.name}`,
+      `Subject "${subject.name}" added to class`,
+      userId,
+      userName,
+      saved._id.toString(),
+      'subject'
+    ).catch(() => {});
+
     return sendSuccess(res, populated, 201);
   } catch (err: any) {
     console.error('[subject.createSubject]', err);
@@ -66,6 +82,21 @@ export const updateSubject = async (req: Request, res: Response) => {
       new: true,
     }).populate('classId teacherIds');
     if (!updated) return sendError(res, 'Subject not found', 404);
+
+    // log update
+    const authReq = req as any;
+    const userId = authReq.user?.id || '';
+    const userName = authReq.user?.name || 'System';
+    logActivity(
+      'subject_updated',
+      `Subject Updated: ${updated.name}`,
+      `Subject "${updated.name}" was modified`,
+      userId,
+      userName,
+      updated._id.toString(),
+      'subject'
+    ).catch(() => {});
+
     return sendSuccess(res, updated);
   } catch (err: any) {
     console.error('[subject.updateSubject]', err);
@@ -78,6 +109,21 @@ export const deleteSubject = async (req: Request, res: Response) => {
   try {
     const deleted = await Subject.findByIdAndDelete(req.params.id);
     if (!deleted) return sendError(res, 'Subject not found', 404);
+
+    // log deletion
+    const authReq = req as any;
+    const userId = authReq.user?.id || '';
+    const userName = authReq.user?.name || 'System';
+    logActivity(
+      'subject_deleted',
+      `Subject Deleted: ${deleted.name}`,
+      `Subject "${deleted.name}" has been removed`,
+      userId,
+      userName,
+      deleted._id.toString(),
+      'subject'
+    ).catch(() => {});
+
     return sendSuccess(res, { message: 'Subject deleted' });
   } catch (err) {
     console.error('[subject.deleteSubject]', err);

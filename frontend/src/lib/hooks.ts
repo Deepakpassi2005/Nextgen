@@ -6,6 +6,9 @@ export const useStudents = () => {
   return useQuery({
     queryKey: ['students'],
     queryFn: apiClient.students.getAll,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
+    staleTime: 2000,
   });
 };
 
@@ -22,6 +25,9 @@ export const useStudentsByClass = (classId: string) => {
     queryKey: ['students', 'class', classId],
     queryFn: () => apiClient.students.getByClass(classId),
     enabled: !!classId,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+    staleTime: 1000,
   });
 };
 
@@ -66,6 +72,9 @@ export const useTeachers = () => {
   return useQuery({
     queryKey: ['teachers'],
     queryFn: apiClient.teachers.getAll,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
+    staleTime: 2000,
   });
 };
 
@@ -114,6 +123,9 @@ export const useClasses = () => {
   return useQuery({
     queryKey: ['classes'],
     queryFn: apiClient.classes.getAll,
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
+    staleTime: 2000,
   });
 };
 
@@ -168,6 +180,7 @@ export const useDeleteClass = () => {
 // ==================== SUBJECTS ====================
 export const useSubjects = (classId?: string) => {
   return useQuery({
+    // class-specific call uses query param now
     queryKey: classId ? ['subjects', 'byClass', classId] : ['subjects'],
     queryFn: () => classId ? apiClient.subjects.getByClass(classId) : apiClient.subjects.getAll(),
     enabled: !classId || !!classId, // Enable for all subjects or only when classId is provided
@@ -379,6 +392,39 @@ export const useDeleteTimetableSlot = () => {
   });
 };
 
+// ==================== TIMETABLE CONFIG ====================
+export const useTimetableConfig = (classId: string) => {
+  return useQuery({
+    queryKey: ['timetable-config', classId],
+    queryFn: () => apiClient.timetableConfig.getByClass(classId),
+    enabled: !!classId,
+  });
+};
+
+export const useSaveTimetableConfig = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: apiClient.timetableConfig.save,
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ 
+        queryKey: ['timetable-config', data.classId] 
+      });
+    },
+  });
+};
+
+export const useDeleteTimetableConfig = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: apiClient.timetableConfig.delete,
+    onSuccess: (_, classId) => {
+      queryClient.invalidateQueries({ 
+        queryKey: ['timetable-config', classId] 
+      });
+    },
+  });
+};
+
 // ==================== ATTENDANCE ====================
 export const useAttendance = () => {
   return useQuery({
@@ -392,6 +438,9 @@ export const useAttendanceByStudent = (studentId: string) => {
     queryKey: ['attendance', 'student', studentId],
     queryFn: () => apiClient.attendance.getByStudent(studentId),
     enabled: !!studentId,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+    staleTime: 1000,
   });
 };
 
@@ -447,6 +496,9 @@ export const useMarksByStudent = (studentId: string) => {
     queryKey: ['marks', 'student', studentId],
     queryFn: () => apiClient.marks.getByStudent(studentId),
     enabled: !!studentId,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+    staleTime: 1000,
   });
 };
 
@@ -463,6 +515,9 @@ export const useClassPerformance = (classId: string) => {
     queryKey: ['marks', 'class', classId, 'performance'],
     queryFn: () => apiClient.marks.getClassPerformance(classId),
     enabled: !!classId,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+    staleTime: 1000,
   });
 };
 
@@ -523,5 +578,28 @@ export const useAnalytics = (type: 'teacher' | 'student', id: string) => {
     queryKey: ['analytics', type, id],
     queryFn: () => apiClient.analytics.getAnalytics(type, id),
     enabled: !!id,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+    staleTime: 1000,
+  });
+};
+// ==================== ACTIVITIES ====================
+export const useActivities = (limit?: number) => {
+  return useQuery({
+    queryKey: ['activities', limit],
+    queryFn: () => apiClient.activities.getAll(limit ?? 10),
+    refetchInterval: 5000,
+    refetchIntervalInBackground: true,
+    staleTime: 2000,
+  });
+};
+
+export const useMarkActivityAsRead = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient.activities.markAsRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['activities'] });
+    },
   });
 };

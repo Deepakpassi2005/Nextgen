@@ -14,8 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
-import { useMemo, useState } from "react";
+import { Plus, Save, Edit2, RotateCcw } from "lucide-react";
+import { useMemo, useState, useEffect } from "react";
 import {
   useClasses,
   useTimetableByClass,
@@ -23,7 +23,10 @@ import {
   useSubjects,
   useCreateTimetableSlot,
   useDeleteTimetableSlot,
+  useTimetableConfig,
+  useSaveTimetableConfig,
 } from "@/lib/hooks";
+import { useQueryClient } from '@tanstack/react-query';
 import { useToast } from "@/hooks/use-toast";
 import { TableSkeleton } from "@/components/shared/LoadingStates";
 
@@ -79,6 +82,23 @@ export default function TimetablePage() {
   const [startTime, setStartTime] = useState("09:00");
   const [periodDuration, setPeriodDuration] = useState(60);
   const [periodCount, setPeriodCount] = useState(7);
+  const [configMode, setConfigMode] = useState<'view' | 'edit'>('view');
+  const [isSavingConfig, setIsSavingConfig] = useState(false);
+
+  // Load saved config when class is selected
+  const { data: savedConfig } = useTimetableConfig(selectedClass);
+  const { mutate: saveConfig } = useSaveTimetableConfig();
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    if (selectedClass && savedConfig) {
+      console.log('Loading saved config:', savedConfig);
+      setStartTime(savedConfig.startTime || '09:00');
+      setPeriodDuration(savedConfig.periodDuration || 60);
+      setPeriodCount(savedConfig.periodCount || 7);
+      setConfigMode('view');
+    }
+  }, [selectedClass, savedConfig]);
 
   const timeSlots = useMemo(() => {
     return generateTimeSlots(startTime, periodDuration, periodCount);
@@ -87,7 +107,7 @@ export default function TimetablePage() {
   const { data: timetable = [], isLoading } =
     useTimetableByClass(selectedClass);
 
-  const { mutate: createSlot } = useCreateTimetableSlot();
+  const { mutate: createSlot, isPending: isCreating } = useCreateTimetableSlot();
   const { mutate: deleteSlot } = useDeleteTimetableSlot();
 
   const { toast } = useToast();
@@ -112,6 +132,24 @@ export default function TimetablePage() {
     );
   }, [timetable]);
 
+  // Get only time slots that have assignments
+  const usedTimeSlots = useMemo(() => {
+    const used = new Set<string>();
+    Object.keys(grouped).forEach(key => {
+      const [day, time] = key.split('_');
+      used.add(time);
+    });
+    return Array.from(used);
+  }, [grouped]);
+
+  // Filter to only show used time slots (or all if in edit mode)
+  const displayedTimeSlots = useMemo(() => {
+    if (configMode === 'edit') {
+      return timeSlots;
+    }
+    return timeSlots.filter(slot => usedTimeSlots.includes(slot));
+  }, [timeSlots, usedTimeSlots, configMode]);
+
   const openAddDialog = (day: string, time: string) => {
     if (!selectedClass) {
       toast({
@@ -127,28 +165,87 @@ export default function TimetablePage() {
   };
 
   const handleCreateSlot = () => {
+    console.log('Save Slot clicked', { selectedSubject, selectedTeacher });
+    
     if (!selectedSubject || !selectedTeacher) {
       toast({
-        title: "Select subject and teacher",
+        title: "Error",
+        description: "Please select both subject and teacher",
         variant: "destructive",
       });
       return;
     }
 
-    createSlot(
+    const payload = {
+      classId: selectedClass,
+      day: selectedDay,
+      timeSlot: selectedTime,
+      subjectId: selectedSubject,
+      teacherId: selectedTeacher,
+    };
+
+    console.log('Creating slot with payload:', payload);
+
+    createSlot(payload, {
+      onSuccess: (response) => {
+        console.log('Slot created successfully:', response);
+        toast({
+          title: "Success",
+          description: "Slot added successfully",
+        });
+        setDialogOpen(false);
+        setSelectedSubject("");
+        setSelectedTeacher("");
+        setSelectedDay("");
+        setSelectedTime("");
+      },
+      onError: (error: any) => {
+        console.error('Error creating slot:', error);
+        toast({
+          title: "Error",
+          description: error?.message || "Failed to add slot",
+          variant: "destructive",
+        });
+      },
+    });
+  };
+
+  const handleSaveConfig = () => {
+    if (!selectedClass) {
+      toast({
+        title: "Error",
+        description: "Please select a class first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSavingConfig(true);
+    saveConfig(
       {
         classId: selectedClass,
-        day: selectedDay,
-        timeSlot: selectedTime,
-        subjectId: selectedSubject,
-        teacherId: selectedTeacher,
+        startTime,
+        periodDuration,
+        periodCount,
       },
       {
         onSuccess: () => {
-          toast({ title: "Slot added successfully" });
-          setDialogOpen(false);
-          setSelectedSubject("");
-          setSelectedTeacher("");
+          setIsSavingConfig(false);
+          toast({
+            title: "Success",
+            description: "Timetable configuration saved",
+          });
+          // ensure notification count updates immediately
+          queryClient.invalidateQueries({ queryKey: ['activities'] });
+          setConfigMode('view');
+        },
+        onError: (error: any) => {
+          setIsSavingConfig(false);
+          toast({
+            title: "Error",
+            description: error?.message || "Failed to save configuration",
+            variant: "destructive",
+          });
         },
       }
     );
@@ -190,56 +287,90 @@ export default function TimetablePage() {
           </Select>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">
-            Start Time
-          </label>
-          <Input
-            type="time"
-            value={startTime}
-            onChange={(e) => setStartTime(e.target.value)}
-            className="w-[130px]"
-          />
-        </div>
+        {configMode === 'view' && selectedClass && (
+          <>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfigMode('edit')}
+              className="gap-2"
+            >
+              <Edit2 className="h-4 w-4" />
+              Edit Config
+            </Button>
+          </>
+        )}
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">
-            Duration (min)
-          </label>
-          <Input
-            type="number"
-            value={periodDuration}
-            onChange={(e) =>
-              setPeriodDuration(Number(e.target.value) || 60)
-            }
-            className="w-[110px]"
-          />
-        </div>
+        {configMode === 'edit' && (
+          <>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">
+                Start Time
+              </label>
+              <Input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="w-[130px]"
+              />
+            </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs text-muted-foreground">
-            Periods
-          </label>
-          <Input
-            type="number"
-            value={periodCount}
-            onChange={(e) =>
-              setPeriodCount(Number(e.target.value) || 7)
-            }
-            className="w-[90px]"
-          />
-        </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">
+                Duration (min)
+              </label>
+              <Input
+                type="number"
+                value={periodDuration}
+                onChange={(e) =>
+                  setPeriodDuration(Number(e.target.value) || 60)
+                }
+                className="w-[110px]"
+              />
+            </div>
 
-        <Button
-          variant="secondary"
-          onClick={() => {
-            setStartTime("09:00");
-            setPeriodDuration(60);
-            setPeriodCount(7);
-          }}
-        >
-          Reset
-        </Button>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-muted-foreground">
+                Periods
+              </label>
+              <Input
+                type="number"
+                value={periodCount}
+                onChange={(e) =>
+                  setPeriodCount(Number(e.target.value) || 7)
+                }
+                className="w-[90px]"
+              />
+            </div>
+
+            <Button
+              variant="default"
+              size="sm"
+              onClick={handleSaveConfig}
+              disabled={isSavingConfig}
+              className="gap-2"
+            >
+              <Save className="h-4 w-4" />
+              {isSavingConfig ? "Saving..." : "Save"}
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setConfigMode('view')}
+              className="gap-2"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Cancel
+            </Button>
+          </>
+        )}
+
+        {configMode === 'view' && selectedClass && (
+          <div className="text-xs text-muted-foreground ml-auto">
+            {startTime} • {periodDuration}min • {displayedTimeSlots.length} periods
+          </div>
+        )}
       </div>
 
       {/* Timetable Grid */}
@@ -263,7 +394,7 @@ export default function TimetablePage() {
               ))}
             </div>
 
-            {timeSlots.map((time) => {
+            {displayedTimeSlots.map((time) => {
               return (
                 <div
                   key={time}
@@ -283,7 +414,7 @@ export default function TimetablePage() {
                         className="p-2 border-r min-h-[85px]"
                       >
                         {slots.length > 0 ? (
-                          slots.map((slot) => (
+                          slots.map((slot: any) => (
                             <Card
                               key={slot._id}
                               className="p-2 relative group hover:shadow-md transition"
@@ -326,48 +457,67 @@ export default function TimetablePage() {
       )}
 
       {/* Add Slot Dialog */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog 
+        open={dialogOpen} 
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            // Reset form when closing dialog
+            setSelectedSubject("");
+            setSelectedTeacher("");
+            setSelectedDay("");
+            setSelectedTime("");
+          }
+        }}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Slot</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4">
-            <p>
+            <p className="font-semibold">
               {selectedDay} - {selectedTime}
             </p>
 
-            <Select onValueChange={setSelectedSubject}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Subject" />
-              </SelectTrigger>
-              <SelectContent>
-                {subjects.map((s: any) => (
-                  <SelectItem key={s._id} value={s._id}>
-                    {s.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Subject</label>
+              <Select value={selectedSubject} onValueChange={setSelectedSubject}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  {subjects.map((s: any) => (
+                    <SelectItem key={s._id} value={s._id}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-            <Select onValueChange={setSelectedTeacher}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Teacher" />
-              </SelectTrigger>
-              <SelectContent>
-                {teachers.map((t: any) => (
-                  <SelectItem key={t._id} value={t._id}>
-                    {t.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Teacher</label>
+              <Select value={selectedTeacher} onValueChange={setSelectedTeacher}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select Teacher" />
+                </SelectTrigger>
+                <SelectContent>
+                  {teachers.map((t: any) => (
+                    <SelectItem key={t._id} value={t._id}>
+                      {t.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
             <Button
               onClick={handleCreateSlot}
+              disabled={isCreating || !selectedSubject || !selectedTeacher}
               className="w-full"
             >
-              Save Slot
+              {isCreating ? "Saving..." : "Save Slot"}
             </Button>
           </div>
         </DialogContent>

@@ -6,13 +6,24 @@
 */
 
 // base URL is driven by environment variable set at build time
-const API_URL = import.meta.env.VITE_API_URL;
+// fall back to current origin if the env var is missing (useful when serving
+// frontend and backend from same host/port).
+const API_URL = import.meta.env.VITE_API_URL || '';
 
-if (!API_URL) {
-  throw new Error('VITE_API_URL is not defined');
+// `window.location` is only available at runtime; keep BASE_URL logic in
+// a function so server-side code (e.g. during build) doesn't break.
+function getBaseUrl() {
+  if (API_URL && API_URL.length) {
+    return String(API_URL).replace(/\/+$|\s+/g, '');
+  }
+  // default to same-origin
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  throw new Error('Unable to determine API base URL');
 }
 
-const BASE_URL = API_URL;
+const BASE_URL = getBaseUrl();
 
 async function handleResponse<T>(res: Response): Promise<T> {
   // parse JSON body if present
@@ -62,7 +73,7 @@ async function request<T>(endpoint: string, opts: RequestInit = {}): Promise<T> 
   };
   if (token) headers.Authorization = `Bearer ${token}`;
   // ensure we always call the API router mounted at /api on the backend
-  const base = String(BASE_URL).replace(/\/+$/g, '');
+  const base = getBaseUrl();
   const url = endpoint.startsWith('/api') ? `${base}${endpoint}` : `${base}/api${endpoint}`;
 
   const res = await fetch(url, { ...opts, headers });
@@ -127,7 +138,8 @@ export const apiClient = {
   },
   subjects: {
     getAll: () => api.get('/subjects'),
-    getByClass: (classId: string) => api.get(`/subjects/class/${classId}`),
+    // backend expects classId as query parameter
+  getByClass: (classId: string) => api.get(`/subjects?classId=${classId}`),
     getById: (id: string) => api.get(`/subjects/${id}`),
     create: (data: any) => api.post('/subjects', data),
     update: (id: string, data: any) => api.put(`/subjects/${id}`, data),
@@ -151,6 +163,11 @@ export const apiClient = {
     'delete': (id: string) => api.remove(`/timetable/${id}`),
     remove: (id: string) => api.remove(`/timetable/${id}`),
   },
+  timetableConfig: {
+    getByClass: (classId: string) => api.get(`/timetable-config/${classId}`),
+    save: (data: any) => api.post('/timetable-config', data),
+    delete: (classId: string) => api.remove(`/timetable-config/${classId}`),
+  },
   attendance: {
     getAll: () => api.get('/attendance'),
     getByStudent: (studentId: string) => api.get(`/attendance/student/${studentId}`),
@@ -169,6 +186,10 @@ export const apiClient = {
     update: (id: string, data: any) => api.put(`/marks/${id}`, data),
     'delete': (id: string) => api.remove(`/marks/${id}`),
     remove: (id: string) => api.remove(`/marks/${id}`),
+  },
+  activities: {
+    getAll: (limit?: number) => api.get(`/activities?limit=${limit || 10}`),
+    markAsRead: (id: string) => api.put(`/activities/${id}/read`, {}),
   },
 };
 

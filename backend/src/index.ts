@@ -120,9 +120,38 @@ app.use((req, res, next) => {
   // =========================
   // Start Server (fixed for Render)
   // =========================
-  const PORT = Number(process.env.PORT) || 5000;
+  const DEFAULT_PORT = 5000;
+  const requestedPort = Number(process.env.PORT) || DEFAULT_PORT;
 
-  httpServer.listen(PORT, "0.0.0.0", () => {
-    log(`🚀 Server running on port ${PORT}`);
-  });
+  // Find a free port starting at requestedPort and bind once
+  const maxAttempts = 10;
+
+  const findFreePort = (startPort: number, attemptsLeft: number): Promise<number> => {
+    return new Promise((resolve, reject) => {
+      if (attemptsLeft <= 0) return reject(new Error('No free ports'));
+      const net = require('net');
+      const tester = net.createServer()
+        .once('error', (err: any) => {
+          tester.close();
+          if (err.code === 'EADDRINUSE') {
+            resolve(findFreePort(startPort + 1, attemptsLeft - 1));
+          } else {
+            reject(err);
+          }
+        })
+        .once('listening', () => {
+          tester.close();
+          resolve(startPort);
+        })
+        .listen(startPort, '0.0.0.0');
+    });
+  };
+
+  try {
+    const freePort = await findFreePort(requestedPort, maxAttempts);
+    httpServer.listen(freePort, '0.0.0.0', () => log(`🚀 Server running on port ${freePort}`));
+  } catch (err: any) {
+    console.error('Failed to find free port:', err);
+    process.exit(1);
+  }
 })();

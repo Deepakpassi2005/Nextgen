@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { Student } from '../models/Student';
 import { sendSuccess, sendError } from '../utils/response';
 import { requireFields } from '../utils/validators';
+import { logActivity } from '../services/activityService';
+import { AuthRequest } from '../middlewares/authMiddleware';
 
 const studentRequired = ['admissionNumber', 'firstName', 'rollNumber', 'classId', 'email', 'password'];
 
@@ -83,6 +85,22 @@ export const createStudent = async (req: Request, res: Response) => {
 
     const saved = await student.save();
     const populated = await saved.populate('classId');
+    
+    // Log activity
+    const authReq = req as AuthRequest;
+    const userId = authReq.user?.id || '';
+    const userName = authReq.user?.name || 'System';
+    logActivity(
+      'student_created',
+      `New Student Created: ${student.firstName} ${student.lastName}`,
+      `Student "${student.firstName} ${student.lastName}" with admission number ${student.admissionNumber} has been created`,
+      userId,
+      userName,
+      saved._id.toString(),
+      'student'
+    ).catch(() => {});
+
+    
     return sendSuccess(res, populated, 201);
   } catch (err: any) {
     console.error('[student.createStudent]', err);
@@ -97,6 +115,22 @@ export const updateStudent = async (req: Request, res: Response) => {
       new: true,
     }).populate('classId');
     if (!updated) return sendError(res, 'Student not found', 404);
+    
+    // Log activity
+    const authReq = req as AuthRequest;
+    const userId = authReq.user?.id || '';
+    const userName = authReq.user?.name || 'System';
+    logActivity(
+      'student_updated',
+      `Student Updated: ${updated.firstName} ${updated.lastName}`,
+      `Student "${updated.firstName} ${updated.lastName}" has been updated`,
+      userId,
+      userName,
+      updated._id.toString(),
+      'student'
+    ).catch(() => {});
+
+    
     return sendSuccess(res, updated);
   } catch (err: any) {
     console.error('[student.updateStudent]', err);
@@ -109,6 +143,22 @@ export const deleteStudent = async (req: Request, res: Response) => {
   try {
     const deleted = await Student.findByIdAndDelete(req.params.id);
     if (!deleted) return sendError(res, 'Student not found', 404);
+    
+    // Log activity
+    const authReq = req as AuthRequest;
+    const userId = authReq.user?.id || '';
+    const userName = authReq.user?.name || 'System';
+    logActivity(
+      'student_deleted',
+      `Student Deleted: ${deleted.firstName} ${deleted.lastName}`,
+      `Student "${deleted.firstName} ${deleted.lastName}" has been deleted`,
+      userId,
+      userName,
+      deleted._id.toString(),
+      'student'
+    ).catch(() => {});
+
+    
     return sendSuccess(res, { message: 'Student deleted' });
   } catch (err) {
     console.error('[student.deleteStudent]', err);
