@@ -10,23 +10,29 @@ import StudentsPage from "@/pages/StudentsPage";
 import TeachersPage from "@/pages/TeachersPage";
 import ClassesPage from "@/pages/ClassesPage";
 import SubjectsPage from "@/pages/SubjectsPage";
-import NoticesPage from "@/pages/NoticesPage";
 import LoginPage from "@/pages/LoginPage";
-import AnalyticsPage from "@/pages/AnalyticsPage";
 import TimetablePage from "@/pages/TimetablePage";
+import AttendancePage from "@/pages/AttendancePage";
+import MarksPage from "@/pages/MarksPage";
+import MaterialsPage from "@/pages/MaterialsPage";
+import NotificationsPage from "@/pages/NotificationsPage";
+import ReportsPage from "@/pages/ReportsPage";
+import QuizzesPage from "@/pages/QuizzesPage";
+import AssignmentsPage from "@/pages/AssignmentsPage";
 import { useStore } from "@/lib/store";
 import { useEffect } from "react";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  const { isAuthenticated } = useStore();
+  const { isAuthenticated, isLoading } = useStore();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated && !isLoading) {
       setLocation("/login");
     }
-  }, [isAuthenticated, setLocation]);
+  }, [isAuthenticated, isLoading, setLocation]);
 
+  if (isLoading) return null;
   if (!isAuthenticated) return null;
 
   return (
@@ -57,13 +63,35 @@ function Router() {
         <ProtectedRoute component={SubjectsPage} />
       </Route>
       <Route path="/notices">
-        <ProtectedRoute component={NoticesPage} />
+        <ProtectedRoute component={NotificationsPage} />
       </Route>
+      {/* /analytics is now consolidated into /reports */}
       <Route path="/analytics">
-        <ProtectedRoute component={AnalyticsPage} />
+        <ProtectedRoute component={ReportsPage} />
       </Route>
       <Route path="/timetable">
         <ProtectedRoute component={TimetablePage} />
+      </Route>
+      <Route path="/attendance">
+        <ProtectedRoute component={AttendancePage} />
+      </Route>
+      <Route path="/marks">
+        <ProtectedRoute component={MarksPage} />
+      </Route>
+      <Route path="/materials">
+        <ProtectedRoute component={MaterialsPage} />
+      </Route>
+      <Route path="/assignments">
+        <ProtectedRoute component={AssignmentsPage} />
+      </Route>
+      <Route path="/notifications">
+        <ProtectedRoute component={NotificationsPage} />
+      </Route>
+      <Route path="/reports">
+        <ProtectedRoute component={ReportsPage} />
+      </Route>
+      <Route path="/quizzes">
+        <ProtectedRoute component={QuizzesPage} />
       </Route>
 
       <Route component={NotFound} />
@@ -72,6 +100,12 @@ function Router() {
 }
 
 function App() {
+  const { initialize } = useStore();
+
+  useEffect(() => {
+    initialize();
+  }, [initialize]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>

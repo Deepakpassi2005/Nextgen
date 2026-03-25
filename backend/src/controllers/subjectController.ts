@@ -31,13 +31,31 @@ export const getSubjectById = async (req: Request, res: Response) => {
   }
 };
 
+const syncTeacherSubjects = async (subjectId: string, newTeacherIds: string[], previousTeacherIds: string[] = []) => {
+  // Add subject to new teachers
+  if (newTeacherIds.length > 0) {
+    await Teacher.updateMany(
+      { _id: { $in: newTeacherIds } },
+      { $addToSet: { subjects: subjectId } }
+    );
+  }
+  // Remove subject from teachers who were removed
+  const removedTeachers = previousTeacherIds.filter(id => !newTeacherIds.includes(id));
+  if (removedTeachers.length > 0) {
+    await Teacher.updateMany(
+      { _id: { $in: removedTeachers } },
+      { $pull: { subjects: subjectId } }
+    );
+  }
+};
+
 export const createSubject = async (req: Request, res: Response) => {
   try {
     const err = requireFields(req.body, subjectRequired);
     if (err) return sendError(res, err, 400);
 
     const teacherIds = Array.isArray(req.body.teacherIds) ? req.body.teacherIds : [];
-    const uniqueTeacherIds = Array.from(new Set(teacherIds.map(String)));
+    const uniqueTeacherIds = Array.from(new Set(teacherIds.map(String))) as string[];
 
     const subject = new Subject({
       name: req.body.name,
@@ -49,6 +67,9 @@ export const createSubject = async (req: Request, res: Response) => {
 
     const saved = await subject.save();
     const populated = await Subject.findById(saved._id).populate('classId teacherIds');
+
+    // Sync Teacher.subjects[] bidirectionally
+    syncTeacherSubjects(saved._id.toString(), uniqueTeacherIds).catch(() => {});
 
     // log activity (non-blocking)
     const authReq = req as any;
@@ -74,14 +95,24 @@ export const createSubject = async (req: Request, res: Response) => {
 
 export const updateSubject = async (req: Request, res: Response) => {
   try {
+    // Get the old subject first to detect teacher assignment changes
+    const oldSubject = await Subject.findById(req.params.id);
+    if (!oldSubject) return sendError(res, 'Subject not found', 404);
+
+    let newTeacherIds: string[] = (oldSubject.teacherIds || []).map(String);
     if (req.body.teacherIds && Array.isArray(req.body.teacherIds)) {
-      req.body.teacherIds = Array.from(new Set(req.body.teacherIds.map(String)));
+      newTeacherIds = Array.from(new Set(req.body.teacherIds.map(String))) as string[];
+      req.body.teacherIds = newTeacherIds;
     }
 
     const updated = await Subject.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     }).populate('classId teacherIds');
     if (!updated) return sendError(res, 'Subject not found', 404);
+
+    // Sync Teacher.subjects[] bidirectionally
+    const previousTeacherIds = (oldSubject.teacherIds || []).map(String);
+    syncTeacherSubjects(String(req.params.id), newTeacherIds, previousTeacherIds).catch(() => {});
 
     // log update
     const authReq = req as any;

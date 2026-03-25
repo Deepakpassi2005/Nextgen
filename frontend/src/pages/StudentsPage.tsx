@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useClasses, useStudents, useStudentsByClass, useCreateStudent, useDeleteStudent, useUpdateStudent } from '@/lib/hooks';
+import { useStore } from '@/lib/store';
+import { apiClient } from '@/lib/api';
 import { TableSkeleton, EmptyState } from '@/components/shared/LoadingStates';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -11,11 +13,13 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { useForm } from 'react-hook-form';
+import { AdminPasswordPrompt } from '@/components/shared/AdminPasswordPrompt';
 
 // Strict typed interfaces used by this page
 interface ClassItem {
@@ -57,6 +61,18 @@ interface StudentItem {
 
 export default function StudentsPage(): React.ReactElement {
   const { toast } = useToast();
+  const verifyAdminPassword = useStore((s) => s.verifyAdminPassword);
+
+  const VIEW_PASSWORD_PLACEHOLDER = '********';
+  const [passwordAccess, setPasswordAccess] = useState<'none' | 'view' | 'edit'>('none');
+  const [isUploading, setIsUploading] = useState(false);
+
+  const getFullImageUrl = (path?: string) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    const base = import.meta.env.VITE_API_URL || window.location.origin;
+    return `${base.replace(/\/$/, '')}/${path}`;
+  };
 
   // Data hooks (these return unknown-underlying data; we coerce safely)
   const classesQuery = useClasses();
@@ -74,9 +90,12 @@ export default function StudentsPage(): React.ReactElement {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  // admin authentication needed to reveal/edit existing password
-  const [isAuthForPassword, setIsAuthForPassword] = useState(false);
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<any>();
+  const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<any>();
+
+  const [adminPromptOpen, setAdminPromptOpen] = useState(false);
+  const [adminPromptMode, setAdminPromptMode] = useState<'view' | 'edit'>('view');
+  const [adminPromptError, setAdminPromptError] = useState<string | null>(null);
+  const [adminPromptLoading, setAdminPromptLoading] = useState(false);
 
   // Safe data extraction with defensive checks
   const classes: ClassItem[] = useMemo(() => {
@@ -93,7 +112,7 @@ export default function StudentsPage(): React.ReactElement {
   const selectedClass = classes.find((c) => c._id === selectedClassId) || null;
 
   // form submission handler for both create and update
-  const onSubmit = async (data: any) => {
+  const onSubmit = (data: any) => {
     // build payload respecting API required fields
     const payload: any = { ...data };
     // split name into first/last parts
@@ -104,34 +123,80 @@ export default function StudentsPage(): React.ReactElement {
     }
     delete payload.name;
 
-    if (editingId) {
-      // don't override password if blank
-      if (!data.password) delete payload.password;
-    } else {
-      if (data.password) payload.password = data.password;
-      // admissionNumber required on create, enforced by validation above
+    const password = data.password;
+    // normalize password behavior when the field is only for showing/hiding
+    if (password === VIEW_PASSWORD_PLACEHOLDER) {
+      delete payload.password;
     }
 
-    try {
-      if (editingId) {
-        await updateStudent.mutateAsync({ id: editingId, data: payload } as any);
-        toast({ title: 'Student updated' });
+    if (editingId) {
+      // For editing: only include password if it was changed (not placeholder)
+      if (data.password && data.password !== VIEW_PASSWORD_PLACEHOLDER) {
+        payload.password = data.password;
       } else {
-        await createStudent.mutateAsync(payload as any);
+        // Don't include password if it's the placeholder or empty
+        delete payload.password;
+      }
+    } else {
+      // Creation requires a password
+      if (!data.password) {
+        toast({ title: 'Password is required for new students', variant: 'destructive' });
+        return;
+      }
+      payload.password = data.password;
+    }
+
+    if (editingId) {
+      updateStudent.mutateAsync({ id: editingId, data: payload } as any).then(() => {
+        toast({ title: 'Student updated' });
+        setIsDialogOpen(false);
+        setEditingId(null);
+        reset();
+      }).catch((e: unknown) => {
+        let message = String((e as Error)?.message || e);
+        // catch Mongo duplicate key admissionNumber
+        if (/dup key/.test(message) && /admissionNumber/.test(message)) {
+          message = 'Admission number already exists';
+        }
+        toast({ title: 'Update failed', description: message, variant: 'destructive' });
+      });
+    } else {
+      createStudent.mutateAsync(payload as any).then(() => {
         toast({ title: 'Student created' });
         // show the new student by switching filter to its class
         if (payload.classId) setSelectedClassId(payload.classId);
-      }
-      setIsDialogOpen(false);
-      setEditingId(null);
-      reset();
-    } catch (e: unknown) {
-      let message = String((e as Error)?.message || e);
-      // catch Mongo duplicate key admissionNumber
-      if (/dup key/.test(message) && /admissionNumber/.test(message)) {
-        message = 'Admission number already exists';
-      }
-      toast({ title: editingId ? 'Update failed' : 'Create failed', description: message, variant: 'destructive' });
+        setIsDialogOpen(false);
+        setEditingId(null);
+        reset();
+      }).catch((e: unknown) => {
+        let message = String((e as Error)?.message || e);
+        // catch Mongo duplicate key admissionNumber
+        if (/dup key/.test(message) && /admissionNumber/.test(message)) {
+          message = 'Admission number already exists';
+        }
+        toast({ title: 'Create failed', description: message, variant: 'destructive' });
+      });
+    }
+  };
+
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Photo must be under 2MB', variant: 'destructive' });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const res = await apiClient.students.uploadPhoto(file);
+      setValue('studentPhoto', res.photoPath);
+      toast({ title: 'Photo uploaded successfully' });
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -145,25 +210,45 @@ export default function StudentsPage(): React.ReactElement {
     }
   };
 
-  // When the eye icon is clicked we may need to verify the admin password
-  const handlePasswordEyeClick = () => {
-    if (editingId && !isAuthForPassword) {
-      const ans = prompt('Enter admin password to unlock this field');
-      if (ans === 'admin') {
-        setIsAuthForPassword(true);
-        // field is now unlocked for editing; existing value is hidden for security
-        setShowPassword(false); // keep masked since we can't show real password
-        toast({ description: 'Password field unlocked – enter a new value to change it.' });
-      } else {
-        toast({ title: 'Incorrect admin password', variant: 'destructive' });
-      }
-    } else {
-      setShowPassword(p => !p);
+  const requestAdminPassword = async (allowEdit: boolean) => {
+    setAdminPromptError(null);
+    setAdminPromptMode(allowEdit ? 'edit' : 'view');
+    setAdminPromptOpen(true);
+  };
+
+  const handleConfirmAdminPassword = async (password: string) => {
+    setAdminPromptLoading(true);
+    setAdminPromptError(null);
+
+    const ok = await verifyAdminPassword(password);
+    if (!ok) {
+      setAdminPromptError('Invalid admin password');
+      setAdminPromptLoading(false);
+      return;
     }
+
+    setPasswordAccess(adminPromptMode === 'edit' ? 'edit' : 'view');
+    setShowPassword(false);
+
+    if (adminPromptMode === 'edit') {
+      setValue('password', '');
+    } else {
+      setValue('password', VIEW_PASSWORD_PLACEHOLDER);
+    }
+
+    setAdminPromptLoading(false);
+    setAdminPromptOpen(false);
+  };
+
+  const handlePasswordEyeClick = () => {
+    if (passwordAccess === 'none') return;
+    setShowPassword((p) => !p);
   };
 
   const handleEdit = (student: StudentItem) => {
     setEditingId(student._id);
+    setPasswordAccess('none');
+
     // compute display name from parts if necessary
     const displayName = student.name || [student.firstName, student.middleName, student.lastName]
       .filter(Boolean)
@@ -172,8 +257,8 @@ export default function StudentsPage(): React.ReactElement {
       name: displayName,
       rollNumber: student.rollNumber,
       email: student.email,
-      // the password is available in the object (plain-text in dev mode); we
-      // do not populate it here until admin unlocks the field.
+      admissionNumber: student.admissionNumber,
+      classId: typeof student.classId === 'string' ? student.classId : (student.classId as any)?._id || '',
       password: '',
       motherName: (student as any).motherName || '',
       guardianName: (student as any).guardianName || '',
@@ -183,16 +268,33 @@ export default function StudentsPage(): React.ReactElement {
       previousSchool: (student as any).previousSchool || '',
       idProofNumber: (student as any).idProofNumber || '',
       category: (student as any).category || '',
+      studentPhoto: student.studentPhoto || '',
+      gender: student.gender || 'male',
+      dateOfBirth: (student as any).dateOfBirth ? new Date((student as any).dateOfBirth).toISOString().substring(0, 10) : '',
     });
-    // note: password is hashed by backend, so we don't store it here
-
     setShowPassword(false);
-    setIsAuthForPassword(false);
     setIsDialogOpen(true);
   };
 
   const tableColumns = useMemo(() => [
-    { header: 'Roll', accessorKey: 'roll' as const },
+    { 
+      header: 'Roll', 
+      accessorKey: 'roll' as const,
+      cell: (row: any) => (
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-full bg-muted overflow-hidden flex-shrink-0 border">
+            {row.photo ? (
+              <img src={getFullImageUrl(row.photo)} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full flex items-center justify-center text-[10px] text-muted-foreground font-bold">
+                {row.name?.charAt(0) || '?'}
+              </div>
+            )}
+          </div>
+          <span>{row.roll}</span>
+        </div>
+      )
+    },
     { header: 'Name', accessorKey: 'name' as const },
     { header: 'Email', accessorKey: 'email' as const },
     { header: 'Class', accessorKey: 'className' as const },
@@ -202,6 +304,7 @@ export default function StudentsPage(): React.ReactElement {
   const tableData = students.map((s) => ({
     id: s._id,
     roll: s.rollNumber ?? '-',
+    photo: s.studentPhoto,
     name: s.name || [s.firstName, s.middleName, s.lastName].filter(Boolean).join(' ') || '-',
     email: s.email ?? '-',
     className: typeof s.classId === 'string' ? (classes.find(c => c._id === s.classId)?.name ?? '-') : (s.classId && (s.classId as ClassItem).name) || '-',
@@ -236,7 +339,7 @@ export default function StudentsPage(): React.ReactElement {
             setIsDialogOpen(open);
             if (!open) {
               setEditingId(null);
-              setIsAuthForPassword(false);
+              setPasswordAccess('none');
               reset();
             }
           }}>
@@ -244,6 +347,7 @@ export default function StudentsPage(): React.ReactElement {
               <Button onClick={() => {
                 setEditingId(null);
                 setShowPassword(false);
+                setPasswordAccess('edit');
                 // if a class is currently selected for filtering, prefill it
                 reset({ classId: selectedClassId || '' });
               }}>Add Student</Button>
@@ -251,6 +355,9 @@ export default function StudentsPage(): React.ReactElement {
             <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingId ? 'Edit Student' : 'Add New Student'}</DialogTitle>
+                <DialogDescription>
+                  {editingId ? "Update the student's information below." : "Create a new student record in the system."}
+                </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-4">
                 <div className="space-y-2">
@@ -277,33 +384,47 @@ export default function StudentsPage(): React.ReactElement {
                   {errors.email && <span className="text-xs text-destructive">Email is required</span>}
                 </div>
 
-                <div className="space-y-2 relative">
+                <div className="space-y-2">
                   <Label htmlFor="password">Password{editingId ? ' (leave blank to keep)' : ''}</Label>
-                  <Input
-                    id="password"
-                    disabled={editingId && !isAuthForPassword}
-                    type={showPassword ? 'text' : 'password'}
-                    {...register('password', { required: !editingId })}
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-2 top-8 text-gray-400 hover:text-gray-600"
-                    onClick={handlePasswordEyeClick}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                  {errors.password && <span className="text-xs text-destructive">Password is required</span>}
-                  {editingId && !isAuthForPassword && (
-                    <p className="text-xs text-muted-foreground">
-                      Password locked. Click the eye and enter admin password to unlock.
-                    </p>
-                  )}
-                  {editingId && isAuthForPassword && (
-                    <p className="text-xs text-muted-foreground">
-                      Password field unlocked – the current password is hidden for security. Enter a new one to change it.
-                    </p>
-                  )}
+                  <div className="flex gap-2">
+                    <Input
+                      id="password"
+                      type={
+                        passwordAccess === 'edit' ? 'text' : showPassword ? 'text' : 'password'
+                      }
+                      disabled={passwordAccess !== 'edit'}
+                      {...register('password', { 
+                        required: editingId ? false : true,
+                        minLength: { value: 6, message: "Password must be at least 6 characters" }
+                      })}
+                      placeholder={passwordAccess === 'edit' ? 'Enter new password' : '••••••••'}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="whitespace-nowrap"
+                      onClick={() => requestAdminPassword(true)}
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {passwordAccess === 'edit' ? (
+                      <button
+                        type="button"
+                        className="text-xs text-muted-foreground hover:text-foreground"
+                        onClick={handlePasswordEyeClick}
+                      >
+                        {showPassword ? 'Hide' : 'Show'}
+                      </button>
+                    ) : null}
+                    <span className="text-xs text-muted-foreground">
+                      {passwordAccess === 'none' && 'Password locked. Use Edit to unlock.'}
+                      {passwordAccess === 'view' && 'Passwords are stored securely and cannot be shown. Use Edit to set a new one.'}
+                      {passwordAccess === 'edit' && 'Type a new password. Click Show to verify it visually.'}
+                    </span>
+                  </div>
+                  {errors.password && <span className="text-xs text-destructive">{(errors.password?.message as string) || "Password is required"}</span>}
                 </div>
 
                 <div className="space-y-2">
@@ -321,90 +442,124 @@ export default function StudentsPage(): React.ReactElement {
                   {errors.classId && <span className="text-xs text-destructive">Class is required</span>}
                 </div>
 
+                <div className="space-y-2">
+                  <Label htmlFor="studentPhoto">Passport Size Photo (Max 2MB)</Label>
+                  <div className="flex items-center gap-4">
+                    <div className="h-16 w-16 rounded-full bg-muted overflow-hidden border">
+                      {watch('studentPhoto') ? (
+                        <img src={getFullImageUrl(watch('studentPhoto'))} alt="Profile" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs text-center p-1">No Photo</div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <Input 
+                        id="studentPhotoInput" 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={onFileChange}
+                        disabled={isUploading}
+                      />
+                      <p className="text-[10px] text-muted-foreground mt-1">PNG, JPG or JPEG. Max 2MB.</p>
+                      {isUploading && <p className="text-[10px] text-primary animate-pulse">Uploading...</p>}
+                    </div>
+                  </div>
+                  <input type="hidden" {...register('studentPhoto')} />
+                </div>
+
+                <h3 className="text-lg font-semibold pt-4">Personal Info</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="gender">Gender</Label>
+                    <select
+                      id="gender"
+                      {...register('gender')}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                    >
+                      <option value="">Select</option>
+                      <option value="male">Male</option>
+                      <option value="female">Female</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="dateOfBirth">Date of Birth</Label>
+                    <Input id="dateOfBirth" type="date" {...register('dateOfBirth')} />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="studentMobileNumber">Student Phone</Label>
+                  <Input id="studentMobileNumber" {...register('studentMobileNumber')} placeholder="Phone number" />
+                </div>
+
+                <h3 className="text-lg font-semibold pt-4">Parent/Guardian Info</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="fatherName">Father’s Name</Label>
+                    <Input id="fatherName" {...register('fatherName')} placeholder="Father's Name" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="motherName">Mother’s Name</Label>
+                    <Input id="motherName" {...register('motherName')} placeholder="Mother's Name" />
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="parentMobileNumber">Parent Phone</Label>
+                    <Input id="parentMobileNumber" {...register('parentMobileNumber')} placeholder="Parent Phone" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="parentEmail">Parent Email</Label>
+                    <Input id="parentEmail" type="email" {...register('parentEmail')} placeholder="parent@example.com" />
+                  </div>
+                </div>
+
                 {editingId && (
                   <>
-                    {/* additional fields only shown when editing */}
-                    <h3 className="text-lg font-semibold pt-4">Personal Info</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="gender">Gender</Label>
-                      <select
-                        id="gender"
-                        {...register('gender')}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                      >
-                        <option value="">Select</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="dateOfBirth">Date of Birth</Label>
-                      <Input id="dateOfBirth" type="date" {...register('dateOfBirth')} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="studentPhoto">Photo URL</Label>
-                      <Input id="studentPhoto" {...register('studentPhoto')} placeholder="http://..." />
-                    </div>
-
                     <h3 className="text-lg font-semibold pt-4">Academic Info</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="academicYear">Academic Year</Label>
-                      <Input id="academicYear" {...register('academicYear')} placeholder="2025-26" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="section">Section</Label>
-                      <Input id="section" {...register('section')} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="academicYear">Academic Year</Label>
+                        <Input id="academicYear" {...register('academicYear')} placeholder="2025-26" />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="section">Section</Label>
+                        <Input id="section" {...register('section')} />
+                      </div>
                     </div>
 
-                    <h3 className="text-lg font-semibold pt-4">Contact</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="studentMobileNumber">Student Phone</Label>
-                      <Input id="studentMobileNumber" {...register('studentMobileNumber')} />
-                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="residentialAddress">Address</Label>
                       <Input id="residentialAddress" {...register('residentialAddress')} />
                     </div>
 
-                    <h3 className="text-lg font-semibold pt-4">Parent/Guardian</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="fatherName">Father’s Name</Label>
-                      <Input id="fatherName" {...register('fatherName')} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="motherName">Mother’s Name</Label>
-                      <Input id="motherName" {...register('motherName')} />
-                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="guardianName">Guardian Name</Label>
                       <Input id="guardianName" {...register('guardianName')} />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="parentMobileNumber">Parent Phone</Label>
-                      <Input id="parentMobileNumber" {...register('parentMobileNumber')} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="parentEmail">Parent Email</Label>
-                      <Input id="parentEmail" type="email" {...register('parentEmail')} />
-                    </div>
 
                     <h3 className="text-lg font-semibold pt-4">Official</h3>
-                    <div className="space-y-2">
-                      <Label htmlFor="admissionDate">Admission Date</Label>
-                      <Input id="admissionDate" type="date" {...register('admissionDate')} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="admissionDate">Admission Date</Label>
+                        <Input id="admissionDate" type="date" {...register('admissionDate')} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="previousSchool">Previous School</Label>
+                        <Input id="previousSchool" {...register('previousSchool')} />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="previousSchool">Previous School</Label>
-                      <Input id="previousSchool" {...register('previousSchool')} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="idProofNumber">ID Proof #</Label>
-                      <Input id="idProofNumber" {...register('idProofNumber')} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="category">Category</Label>
-                      <Input id="category" {...register('category')} />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="idProofNumber">ID Proof #</Label>
+                        <Input id="idProofNumber" {...register('idProofNumber')} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="category">Category</Label>
+                        <Input id="category" {...register('category')} />
+                      </div>
                     </div>
                   </>
                 )}
@@ -433,6 +588,22 @@ export default function StudentsPage(): React.ReactElement {
           data={tableData}
         />
       )}
+      <AdminPasswordPrompt
+        open={adminPromptOpen}
+        mode={adminPromptMode}
+        isLoading={adminPromptLoading}
+        error={adminPromptError ?? undefined}
+        onOpenChange={(open) => {
+          setAdminPromptOpen(open);
+          if (!open) {
+            setAdminPromptError(null);
+          }
+        }}
+        onConfirm={handleConfirmAdminPassword}
+      />
     </div>
   );
 }
+
+
+

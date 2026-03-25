@@ -2,7 +2,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IAttendanceStudent {
   studentId: mongoose.Types.ObjectId;
-  status: 'present' | 'absent';
+  status: 'present' | 'absent' | 'late';
+  remarks?: string;
 }
 
 export interface IAttendance extends Document {
@@ -22,7 +23,8 @@ const AttendanceSchema = new Schema<IAttendance>(
     students: [
       {
         studentId: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
-        status: { type: String, enum: ['present', 'absent'], required: true },
+        status: { type: String, enum: ['present', 'absent', 'late'], required: true },
+        remarks: { type: String, default: '' },
       },
     ],
   },
@@ -34,5 +36,8 @@ AttendanceSchema.index({ classId: 1, date: 1 }, { unique: true });
 
 // helper index for queries by student
 AttendanceSchema.index({ 'students.studentId': 1 });
+
+// Index for teacher queries
+AttendanceSchema.index({ teacherId: 1 });
 
 export const Attendance = mongoose.model<IAttendance>('Attendance', AttendanceSchema);

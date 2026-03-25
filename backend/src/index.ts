@@ -4,9 +4,19 @@ dotenv.config();
 import connectDB from "./config/db";
 import express, { type Request, Response, NextFunction } from "express";
 import { createServer } from "http";
+import path from "path";
+import fs from "fs";
 
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
+import helmet from "helmet";
+import compression from "compression";
+import rateLimit from "express-rate-limit";
+// Ensure all mongoose models are registered before use
+import User from "./models/User"; // eslint-disable-line no-unused-vars
+import { Assignment } from "./models/Assignment"; // eslint-disable-line no-unused-vars
+import { AssignmentSubmission } from "./models/AssignmentSubmission"; // eslint-disable-line no-unused-vars
+import { ApiError } from "./utils/ApiError";
 
 // =========================
 // Connect Database (ONLY ONCE)
@@ -32,6 +42,9 @@ console.log("FRONTEND_URL env var =", process.env.FRONTEND_URL);
 
 const allowedOrigins = [
   "http://localhost:3000",
+  "http://localhost:5000",
+  "http://localhost:5001",
+  "http://localhost:5002",
   "http://localhost:5173",
   "http://localhost:5174",
   process.env.FRONTEND_URL,
@@ -76,6 +89,28 @@ app.use(
   })
 );
 
+// =========================
+// Security & Performance
+// =========================
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP if it interferes with Vite's HMR or external assets
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow images to be loaded cross-origin
+}));
+app.use(compression());
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: process.env.NODE_ENV === "development" ? 2000 : 100, // Higher limit in development
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: "Too many requests, please try again later." }
+});
+
+// Apply rate limiter to all API routes
+app.use("/api", limiter);
+
 
 // JSON parser
 app.use(
@@ -87,6 +122,32 @@ app.use(
 );
 
 app.use(express.urlencoded({ extended: false }));
+
+// Serve uploads directory statically
+const uploadsPath = path.resolve(process.cwd(), "..", "uploads");
+console.log(`[Static] Serving uploads from: ${uploadsPath}`);
+if (!fs.existsSync(uploadsPath)) {
+  console.warn(`[Static] WARNING: Uploads directory does not exist at ${uploadsPath}`);
+}
+app.use("/uploads", express.static(uploadsPath));
+
+// Debug route to verify pathing
+app.get("/debug-path", (_req, res) => {
+  const dirExists = fs.existsSync(uploadsPath);
+  const noticesDir = path.join(uploadsPath, "notices");
+  const noticesExists = fs.existsSync(noticesDir);
+  const files = noticesExists ? fs.readdirSync(noticesDir) : [];
+  
+  res.json({
+    cwd: process.cwd(),
+    dirname: __dirname,
+    uploadsPath,
+    dirExists,
+    noticesExists,
+    noticesFiles: files,
+    env: process.env.NODE_ENV
+  });
+});
 
 // =========================
 // Logger
@@ -137,16 +198,31 @@ app.use((req, res, next) => {
   await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+    let statusCode = err.statusCode || 500;
+    let message = err.message || "Internal Server Error";
 
-    console.error("Internal Server Error:", err);
+    // Handle Mongoose/MongoDB specific errors
+    if (err.name === 'ValidationError') {
+      statusCode = 400;
+    } else if (err.name === 'CastError') {
+      statusCode = 400;
+      message = `Invalid ${err.path}: ${err.value}`;
+    } else if (err.code === 11000) {
+      statusCode = 400;
+      message = 'Duplicate field value entered';
+    }
+
+    console.error(`[Error] ${statusCode} - ${message}`, err.stack);
 
     if (res.headersSent) {
       return next(err);
     }
 
-    return res.status(status).json({ message });
+    return res.status(statusCode).json({
+      success: false,
+      message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   });
 
   // =========================

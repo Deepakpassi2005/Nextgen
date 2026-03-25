@@ -25,9 +25,9 @@ export const useStudentsByClass = (classId: string) => {
     queryKey: ['students', 'class', classId],
     queryFn: () => apiClient.students.getByClass(classId),
     enabled: !!classId,
-    refetchInterval: 3000,
+    refetchInterval: 5000,
     refetchIntervalInBackground: true,
-    staleTime: 1000,
+    staleTime: 2000,
   });
 };
 
@@ -184,6 +184,8 @@ export const useSubjects = (classId?: string) => {
     queryKey: classId ? ['subjects', 'byClass', classId] : ['subjects'],
     queryFn: () => classId ? apiClient.subjects.getByClass(classId) : apiClient.subjects.getAll(),
     enabled: !classId || !!classId, // Enable for all subjects or only when classId is provided
+    refetchInterval: 5000,
+    staleTime: 2000,
   });
 };
 
@@ -288,6 +290,8 @@ export const useNotices = () => {
   return useQuery({
     queryKey: ['notices'],
     queryFn: apiClient.notices.getAll,
+    refetchInterval: 10000,
+    staleTime: 5000,
   });
 };
 
@@ -295,9 +299,9 @@ export const useRecentNotices = (limit?: number) => {
   return useQuery({
     queryKey: ['notices', 'recent', limit],
     queryFn: () => apiClient.notices.getRecent(limit ?? 0),
-    refetchInterval: 5000,
+    refetchInterval: 10000,
     refetchIntervalInBackground: true,
-    staleTime: 2000,
+    staleTime: 5000,
   });
 };
 
@@ -430,6 +434,8 @@ export const useAttendance = () => {
   return useQuery({
     queryKey: ['attendance'],
     queryFn: apiClient.attendance.getAll,
+    refetchInterval: 5000,
+    staleTime: 2000,
   });
 };
 
@@ -438,9 +444,9 @@ export const useAttendanceByStudent = (studentId: string) => {
     queryKey: ['attendance', 'student', studentId],
     queryFn: () => apiClient.attendance.getByStudent(studentId),
     enabled: !!studentId,
-    refetchInterval: 3000,
+    refetchInterval: 5000,
     refetchIntervalInBackground: true,
-    staleTime: 1000,
+    staleTime: 2000,
   });
 };
 
@@ -488,6 +494,8 @@ export const useMarks = () => {
   return useQuery({
     queryKey: ['marks'],
     queryFn: apiClient.marks.getAll,
+    refetchInterval: 10000,
+    staleTime: 5000,
   });
 };
 
@@ -496,9 +504,9 @@ export const useMarksByStudent = (studentId: string) => {
     queryKey: ['marks', 'student', studentId],
     queryFn: () => apiClient.marks.getByStudent(studentId),
     enabled: !!studentId,
-    refetchInterval: 3000,
+    refetchInterval: 1000,
     refetchIntervalInBackground: true,
-    staleTime: 1000,
+    staleTime: 0,
   });
 };
 
@@ -515,9 +523,9 @@ export const useClassPerformance = (classId: string) => {
     queryKey: ['marks', 'class', classId, 'performance'],
     queryFn: () => apiClient.marks.getClassPerformance(classId),
     enabled: !!classId,
-    refetchInterval: 3000,
+    refetchInterval: 1000,
     refetchIntervalInBackground: true,
-    staleTime: 1000,
+    staleTime: 0,
   });
 };
 
@@ -557,9 +565,9 @@ export const useDashboardSummary = () => {
   return useQuery({
     queryKey: ['dashboard', 'summary'],
     queryFn: apiClient.analytics.getDashboardSummary,
-    refetchInterval: 5000,
+    refetchInterval: 1000,
     refetchIntervalInBackground: true,
-    staleTime: 2000,
+    staleTime: 0,
   });
 };
 
@@ -567,9 +575,20 @@ export const usePerformanceByClass = () => {
   return useQuery({
     queryKey: ['dashboard', 'performance'],
     queryFn: apiClient.analytics.getPerformanceByClass,
-    refetchInterval: 5000,
+    refetchInterval: 1000,
     refetchIntervalInBackground: true,
-    staleTime: 2000,
+    staleTime: 0,
+  });
+};
+
+export const useAttendanceReport = (classId: string) => {
+  return useQuery({
+    queryKey: ['analytics', 'attendance', 'class', classId],
+    queryFn: () => apiClient.analytics.getAttendanceReport(classId),
+    enabled: !!classId,
+    refetchInterval: 1000,
+    refetchIntervalInBackground: true,
+    staleTime: 0,
   });
 };
 
@@ -578,9 +597,9 @@ export const useAnalytics = (type: 'teacher' | 'student', id: string) => {
     queryKey: ['analytics', type, id],
     queryFn: () => apiClient.analytics.getAnalytics(type, id),
     enabled: !!id,
-    refetchInterval: 3000,
+    refetchInterval: 1000,
     refetchIntervalInBackground: true,
-    staleTime: 1000,
+    staleTime: 0,
   });
 };
 // ==================== ACTIVITIES ====================
@@ -600,6 +619,242 @@ export const useMarkActivityAsRead = () => {
     mutationFn: (id: string) => apiClient.activities.markAsRead(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['activities'] });
+    },
+  });
+};
+
+// ==================== EXAMS ====================
+export const useExams = () => {
+  return useQuery({
+    queryKey: ['exams'],
+    queryFn: apiClient.exams.getAll,
+  });
+};
+
+export const useExam = (id: string) => {
+  return useQuery({
+    queryKey: ['exams', id],
+    queryFn: () => apiClient.exams.getById(id),
+    enabled: !!id,
+  });
+};
+
+export const useExamsByClass = (classId: string) => {
+  return useQuery({
+    queryKey: ['exams', 'class', classId],
+    queryFn: () => apiClient.exams.getByClass(classId),
+    enabled: !!classId,
+  });
+};
+
+export const useCreateExam = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: apiClient.exams.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exams'] });
+    },
+  });
+};
+
+export const useUpdateExam = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      apiClient.exams.update(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['exams'] });
+      queryClient.invalidateQueries({ queryKey: ['exams', id] });
+    },
+  });
+};
+
+export const useDeleteExam = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: apiClient.exams.remove,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['exams'] });
+    },
+  });
+};
+
+// ==================== STUDY MATERIALS ====================
+export const useMaterials = () => {
+  return useQuery({
+    queryKey: ['materials'],
+    queryFn: apiClient.materials.getAll,
+  });
+};
+
+export const useMaterialsByClass = (classId: string) => {
+  return useQuery({
+    queryKey: ['materials', 'class', classId],
+    queryFn: () => apiClient.materials.getByClass(classId),
+    enabled: !!classId,
+  });
+};
+
+export const useMaterialsByStudent = (studentId: string) => {
+  return useQuery({
+    queryKey: ['materials', 'student', studentId],
+    queryFn: () => apiClient.materials.getByStudent(studentId),
+    enabled: !!studentId,
+  });
+};
+
+export const useCreateMaterial = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: apiClient.materials.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['materials'] });
+    },
+  });
+};
+
+export const useUpdateMaterial = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      apiClient.materials.update(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['materials'] });
+    },
+  });
+};
+
+export const useDeleteMaterial = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: apiClient.materials.remove,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['materials'] });
+    },
+  });
+};
+
+// ==================== NOTIFICATIONS ====================
+export const useNotifications = () => {
+  return useQuery({
+    queryKey: ['notifications'],
+    queryFn: apiClient.notifications.getAll,
+  });
+};
+
+export const useNotificationsByUser = (userId: string) => {
+  return useQuery({
+    queryKey: ['notifications', 'user', userId],
+    queryFn: () => apiClient.notifications.getByUser(userId),
+    enabled: !!userId,
+  });
+};
+
+export const useCreateNotification = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: apiClient.notifications.create,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+};
+
+export const useUpdateNotification = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      apiClient.notifications.update(id, data),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+};
+
+export const useDeleteNotification = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: apiClient.notifications.remove,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+};
+
+export const useMarkNotificationAsRead = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient.notifications.markAsRead(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    },
+  });
+};
+
+// ==================== IMPORT/EXPORT ====================
+export const useImportStudents = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => apiClient.importExport.importStudents(file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['students'] });
+    },
+  });
+};
+
+export const useImportTeachers = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => apiClient.importExport.importTeachers(file),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['teachers'] });
+    },
+  });
+};
+
+export const useExportStudents = () => {
+  return useQuery({
+    queryKey: ['export', 'students'],
+    queryFn: apiClient.importExport.exportStudents,
+    enabled: false, // Only run when manually triggered
+  });
+};
+
+export const useExportTeachers = () => {
+  return useQuery({
+    queryKey: ['export', 'teachers'],
+    queryFn: apiClient.importExport.exportTeachers,
+    enabled: false, // Only run when manually triggered
+  });
+};
+
+// ==================== QUIZZES (ADMIN) ====================
+export const useAdminQuizzes = () => {
+  return useQuery({
+    queryKey: ['admin', 'quizzes'],
+    queryFn: apiClient.quizzes.getAllAdmin,
+    refetchInterval: 1000,
+    staleTime: 0,
+  });
+};
+
+export const useUpdateAdminQuiz = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      apiClient.quizzes.updateAdmin(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'quizzes'] });
+    },
+  });
+};
+
+export const useDeleteAdminQuiz = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: apiClient.quizzes.deleteAdmin,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'quizzes'] });
     },
   });
 };

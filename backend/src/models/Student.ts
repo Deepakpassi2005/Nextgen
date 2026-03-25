@@ -1,14 +1,16 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import bcrypt from 'bcrypt';
 
 export interface IGuardian {
   type: 'father' | 'mother' | 'guardian';
   name: string;
   relation?: string;
-  contact: string;
-  email?: string;
+  contactNumber: string; // for SMS notifications
+  email?: string; // for email notifications
   occupation?: string;
   annualIncome?: number;
   enableParentLogin?: boolean;
+  isNationalGuardian?: boolean; // primary contact for notifications
 }
 
 export interface IMedicalInfo {
@@ -56,7 +58,7 @@ export interface IStudent extends Document {
 
   // 3️⃣ Contact & Address
   studentMobileNumber?: string;
-  parentMobileNumber?: string;
+  parentMobileNumber?: string; // deprecated - use guardians array
   alternateMobileNumber?: string;
   email: string;
   residentialAddress?: string;
@@ -70,6 +72,9 @@ export interface IStudent extends Document {
   fatherName?: string;
   fatherContact?: string;
   motherName?: string;
+  motherMobileNumber?: string;
+  parentEmail?: string;
+  primaryContactForNotifications?: 'father' | 'mother' | 'guardian' | 'both';
 
   // 5️⃣ Medical Information
   medicalInfo?: IMedicalInfo;
@@ -99,9 +104,16 @@ export interface IStudent extends Document {
   phone?: string;
   loginUsername?: string;
   password: string;
+  userId?: mongoose.Types.ObjectId; // Reference to User model
   remarks?: string;
   attendance: number;
   averageScore: number;
+  notificationSettings?: {
+    newNotice: boolean;
+    newResult: boolean;
+    newAssignment: boolean;
+  };
+  fcmToken?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -149,16 +161,20 @@ const StudentSchema = new Schema<IStudent>(
         type: { type: String, enum: ['father', 'mother', 'guardian'], required: true },
         name: { type: String, required: true },
         relation: { type: String, default: '' },
-        contact: { type: String, required: true },
+        contactNumber: { type: String, required: true },
         email: { type: String, default: '' },
         occupation: { type: String, default: '' },
         annualIncome: { type: Number, default: 0 },
         enableParentLogin: { type: Boolean, default: false },
+        isNationalGuardian: { type: Boolean, default: false },
       }
     ],
     fatherName: { type: String, default: '' },
     fatherContact: { type: String, default: '' },
     motherName: { type: String, default: '' },
+    motherMobileNumber: { type: String, default: '' },
+    parentEmail: { type: String, default: '' },
+    primaryContactForNotifications: { type: String, enum: ['father', 'mother', 'guardian', 'both'], default: 'father' },
 
     // 5️⃣ Medical Information
     medicalInfo: {
@@ -202,11 +218,38 @@ const StudentSchema = new Schema<IStudent>(
     phone: { type: String, default: '' },
     loginUsername: { type: String, default: '' },
     password: { type: String, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
     remarks: { type: String, default: '' },
     attendance: { type: Number, default: 0 },
     averageScore: { type: Number, default: 0 },
+    notificationSettings: {
+      newNotice: { type: Boolean, default: true },
+      newResult: { type: Boolean, default: true },
+      newAssignment: { type: Boolean, default: true },
+    },
+    fcmToken: { type: String, default: '' },
   },
   { timestamps: true }
 );
+
+// Hash password before saving
+StudentSchema.pre<IStudent>('save', async function() {
+  if (!this.isModified('password')) return;
+  try {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  } catch (err: any) {
+    throw err;
+  }
+});
+
+// Virtual for full name
+StudentSchema.virtual('name').get(function() {
+  return `${this.firstName} ${this.middleName ? this.middleName + ' ' : ''}${this.lastName}`.trim();
+});
+
+// Ensure virtual fields are serialized
+StudentSchema.set('toJSON', { virtuals: true });
+StudentSchema.set('toObject', { virtuals: true });
 
 export const Student = mongoose.model<IStudent>('Student', StudentSchema);

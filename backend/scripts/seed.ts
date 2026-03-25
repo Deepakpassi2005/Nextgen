@@ -12,26 +12,34 @@ async function seed() {
   await connectDB();
 
   // create a default admin teacher if not exists
-  const adminEmail = 'admin@school.test';
+  // NOTE: The admin login credentials are intentionally fixed for demo/dev use
+  const adminEmail = 'admin@gmail.com';
   const teacherEmail = 'teacher@school.test';
   const studentEmail = 'student@school.test';
 
   const bcrypt = await import('bcrypt');
 
   let admin = await Teacher.findOne({ email: adminEmail });
+  const adminPassword = 'admin123';
   if (!admin) {
-    const hashed = await bcrypt.hash('adminpass', 10);
-    admin = new Teacher({ name: 'Admin User', email: adminEmail, password: hashed, role: 'admin' });
+    admin = new Teacher({ name: 'Admin User', email: adminEmail, password: adminPassword, role: 'admin' });
     await admin.save();
     console.log('Created admin teacher:', adminEmail);
   } else {
-    console.log('Admin teacher already exists');
+    // Ensure the admin password is always in sync with the expected value for development
+    const passwordMatches = await bcrypt.compare(adminPassword, admin.password);
+    if (!passwordMatches) {
+      admin.password = adminPassword;
+      await admin.save();
+      console.log('Updated admin password to the default development password');
+    } else {
+      console.log('Admin teacher already exists');
+    }
   }
 
   let teacher = await Teacher.findOne({ email: teacherEmail });
   if (!teacher) {
-    const hashed = await bcrypt.hash('teacherpass', 10);
-    teacher = new Teacher({ name: 'John Teacher', email: teacherEmail, password: hashed });
+    teacher = new Teacher({ name: 'John Teacher', email: teacherEmail, password: 'teacherpass' });
     await teacher.save();
     console.log('Created teacher:', teacherEmail);
   }
@@ -55,8 +63,7 @@ async function seed() {
   // student
   let student = await Student.findOne({ email: studentEmail });
   if (!student) {
-    const hashed = await bcrypt.hash('studentpass', 10);
-    student = new Student({ admissionNumber: 'ADM001', firstName: 'Jane', lastName: 'Doe', rollNumber: '1', classId: cls._id, email: studentEmail, password: hashed, role: 'student' });
+    student = new Student({ admissionNumber: 'ADM001', firstName: 'Jane', lastName: 'Doe', rollNumber: '1', classId: cls._id, email: studentEmail, password: 'studentpass', role: 'student' });
     await student.save();
     console.log('Created student:', studentEmail);
   }

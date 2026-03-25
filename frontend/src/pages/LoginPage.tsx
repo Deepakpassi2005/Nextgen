@@ -5,39 +5,38 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { School, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import logo from "@/assets/logoim.png";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("admin@school.com");
-  const [password, setPassword] = useState("admin123");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useStore();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Mock login delay
-    setTimeout(() => {
-      if (email === "admin@school.com" && password === "admin123") {
-        login(email, 'admin');
-        setLocation("/");
-        toast({
-          title: "Welcome back",
-          description: "Logged in successfully as Admin.",
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Login failed",
-          description: "Invalid credentials. Try admin@school.com / admin123",
-        });
-        setIsLoading(false);
-      }
-    }, 1000);
+    try {
+      await login(email, password);
+      setLocation("/");
+      toast({
+        title: "Welcome back",
+        description: "Logged in successfully.",
+      });
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Login failed",
+        description: err?.message || 'Invalid credentials',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -46,10 +45,12 @@ export default function LoginPage() {
       
       <Card className="w-full max-w-md glass-card relative z-10">
         <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-lg shadow-primary/30">
-              <School className="h-6 w-6" />
-            </div>
+          <div className="flex justify-center mb-6">
+            <img 
+              src={logo} 
+              alt="Logo" 
+              className="h-20 w-auto object-contain transition-all hover:scale-105 duration-300" 
+            />
           </div>
           <CardTitle className="text-2xl font-display font-bold">Welcome Back</CardTitle>
           <CardDescription>
@@ -85,7 +86,7 @@ export default function LoginPage() {
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Sign In"}
             </Button>
             <div className="text-center text-xs text-muted-foreground">
-              Demo Credentials: admin@school.com / admin123
+              Demo credentials: admin@gmail.com / admin123
             </div>
           </CardFooter>
         </form>

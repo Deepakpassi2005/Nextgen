@@ -6,8 +6,10 @@ export interface IQuizSubmission extends Document {
   answers: {
     questionId: mongoose.Types.ObjectId;
     answer: string;
+    isCorrect?: boolean;
   }[];
   score?: number;
+  totalMarks?: number;
   submittedAt: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -21,9 +23,11 @@ const QuizSubmissionSchema = new Schema<IQuizSubmission>(
       {
         questionId: { type: Schema.Types.ObjectId, required: true },
         answer: { type: String, required: true },
+        isCorrect: { type: Boolean, default: false },
       },
     ],
     score: { type: Number, default: 0 },
+    totalMarks: { type: Number, default: 0 },
     submittedAt: { type: Date, default: Date.now },
   },
   { timestamps: true }

@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../../middlewares/authMiddleware';
 import { Attendance } from '../../models/Attendance';
+import { PunchLog } from '../../models/PunchLog';
 import { Quiz } from '../../models/Quiz';
 import { sendSuccess, sendError } from '../../utils/response';
 import mongoose from 'mongoose';
@@ -19,16 +20,20 @@ export const getAnalytics = async (req: AuthRequest, res: Response) => {
       date: { $gte: weekAgo },
     }).then((ids) => ids.length);
 
-    const attendanceRecords = await Attendance.find({ teacherId, date: { $gte: monthAgo } });
-    let total = 0,
-      present = 0;
-    attendanceRecords.forEach((rec) => {
-      rec.students.forEach((s) => {
-        total++;
-        if (s.status === 'present') present++;
-      });
+    const punches = await PunchLog.find({
+      teacherId,
+      timestamp: { $gte: monthAgo },
+      withinRadius: true,
     });
-    const monthlyPct = total ? (present / total) * 100 : 0;
+
+    // Unique days punched
+    const uniqueDays = new Set(
+      punches.map((p) => new Date(p.timestamp).toLocaleDateString())
+    ).size;
+
+    // Calculate percent based on a 30-day working month
+    const workDaysInMonth = 30; // Assuming 30 days trailing
+    const monthlyPct = Math.min(100, Math.round((uniqueDays / workDaysInMonth) * 100));
 
     const totalQuizzes = await Quiz.countDocuments({ teacherId });
 

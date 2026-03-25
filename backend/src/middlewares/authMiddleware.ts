@@ -35,9 +35,8 @@ export const authMiddleware = (
       id: payload.sub,
       role: payload.role,
       email: payload.email,
-      // tokens created elsewhere should include the user's name so that
-      // controllers can display friendly messages. Fallback is undefined.
       name: payload.name,
+      classId: payload.classId, // Extract from JWT
     };
     next();
   } catch (err) {

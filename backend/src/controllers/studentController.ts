@@ -4,12 +4,16 @@ import { sendSuccess, sendError } from '../utils/response';
 import { requireFields } from '../utils/validators';
 import { logActivity } from '../services/activityService';
 import { AuthRequest } from '../middlewares/authMiddleware';
+import { sendStudentWelcomeEmail } from '../services/emailService';
 
 const studentRequired = ['admissionNumber', 'firstName', 'rollNumber', 'classId', 'email', 'password'];
 
 export const getStudents = async (req: Request, res: Response) => {
   try {
-    const students = await Student.find().populate('classId');
+    const students = await Student.find()
+      .populate('classId')
+      .sort({ createdAt: -1 });
+
     return sendSuccess(res, students);
   } catch (err) {
     console.error('[student.getStudents]', err);
@@ -67,6 +71,7 @@ export const createStudent = async (req: Request, res: Response) => {
       fatherName: req.body.fatherName,
       fatherContact: req.body.fatherContact,
       motherName: req.body.motherName,
+      parentEmail: req.body.parentEmail,
       medicalInfo: req.body.medicalInfo,
       feeCategory: req.body.feeCategory,
       feeStructure: req.body.feeStructure,
@@ -100,7 +105,15 @@ export const createStudent = async (req: Request, res: Response) => {
       'student'
     ).catch(() => {});
 
-    
+    // Send Welcome Email
+    if (student.email) {
+      sendStudentWelcomeEmail(
+        student.email, 
+        `${student.firstName} ${student.lastName}`,
+        req.body.password
+      ).catch(e => console.error('Failed to send welcome email:', e));
+    }
+
     return sendSuccess(res, populated, 201);
   } catch (err: any) {
     console.error('[student.createStudent]', err);
@@ -111,6 +124,14 @@ export const createStudent = async (req: Request, res: Response) => {
 
 export const updateStudent = async (req: Request, res: Response) => {
   try {
+    // If password is provided, hash it manually as findByIdAndUpdate bypasses hooks
+    if (typeof req.body.password === 'string' && req.body.password.trim()) {
+      const bcrypt = await import('bcrypt');
+      req.body.password = await bcrypt.hash(req.body.password.trim(), 10);
+    } else {
+      delete req.body.password;
+    }
+
     const updated = await Student.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     }).populate('classId');
@@ -130,12 +151,42 @@ export const updateStudent = async (req: Request, res: Response) => {
       'student'
     ).catch(() => {});
 
-    
     return sendSuccess(res, updated);
   } catch (err: any) {
     console.error('[student.updateStudent]', err);
     const msg = err.message || 'Failed to update student';
     return sendError(res, msg, 400);
+  }
+};
+
+export const getMyProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    const student = await Student.findById(req.user?.id).populate('classId');
+    if (!student) return sendError(res, 'Student account not found. Please log in again.', 401);
+    return sendSuccess(res, student);
+  } catch (err) {
+    console.error('[student.getMyProfile]', err);
+    return sendError(res, 'Failed to fetch profile');
+  }
+};
+
+export const updateMyProfile = async (req: AuthRequest, res: Response) => {
+  try {
+    // Prevent sensitive fields from being updated by student
+    const forbidden = ['password', 'role', 'classId', 'admissionNumber', 'rollNumber', 'status', 'email', 'userId'];
+    const updateData = { ...req.body };
+    forbidden.forEach(field => delete updateData[field]);
+
+    const updated = await Student.findByIdAndUpdate(req.user?.id, updateData, {
+      new: true,
+    }).populate('classId');
+    
+    if (!updated) return sendError(res, 'Student not found', 404);
+    
+    return sendSuccess(res, updated);
+  } catch (err: any) {
+    console.error('[student.updateMyProfile]', err);
+    return sendError(res, err.message || 'Failed to update profile', 400);
   }
 };
 
@@ -173,5 +224,26 @@ export const getStudentsByClass = async (req: Request, res: Response) => {
   } catch (err) {
     console.error('[student.getStudentsByClass]', err);
     return sendError(res, 'Failed to fetch students by class');
+  }
+};
+
+export const uploadStudentPhoto = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.file) return sendError(res, 'No photo uploaded', 400);
+    const photoPath = `uploads/profiles/students/${req.file.filename}`;
+    
+    // Update student record
+    const updated = await Student.findByIdAndUpdate(
+      req.user?.id,
+      { studentPhoto: photoPath },
+      { new: true }
+    );
+
+    if (!updated) return sendError(res, 'Student not found', 404);
+
+    return sendSuccess(res, { photoPath, student: updated });
+  } catch (err) {
+    console.error('[student.uploadPhoto]', err);
+    return sendError(res, 'Failed to upload photo');
   }
 };

@@ -58,10 +58,10 @@ export function GenericTable<T extends { id: string | number }>({
                 </TableCell>
               </TableRow>
             ) : (
-              data.map((item) => (
-                <TableRow key={item.id} className="hover:bg-muted/50 transition-colors">
-                  {columns.map((col, index) => (
-                    <TableCell key={index} className={col.className}>
+              data.map((item, rowIndex) => (
+                <TableRow key={item.id || rowIndex} className="hover:bg-muted/50 transition-colors">
+                  {columns.map((col, colIndex) => (
+                    <TableCell key={`${item.id || rowIndex}-${colIndex}`} className={col.className}>
                       {col.cell 
                         ? col.cell(item) 
                         : col.accessorKey 

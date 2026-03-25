@@ -23,11 +23,17 @@ export const punchIn = async (req: Request, res: Response) => {
     if (latitude == null || longitude == null) {
       return sendError(res, 'latitude and longitude required', 400);
     }
-    const schoolLat = Number(process.env.SCHOOL_LAT);
-    const schoolLng = Number(process.env.SCHOOL_LNG);
-    const radius = Number(process.env.PUNCH_RADIUS || '100');
-    const dist = distanceInMeters(latitude, longitude, schoolLat, schoolLng);
-    const within = dist <= radius;
+    let within = false;
+    if (process.env.SCHOOL_LAT && process.env.SCHOOL_LNG) {
+      const schoolLat = Number(process.env.SCHOOL_LAT);
+      const schoolLng = Number(process.env.SCHOOL_LNG);
+      const radius = Number(process.env.PUNCH_RADIUS || '100');
+      const dist = distanceInMeters(latitude, longitude, schoolLat, schoolLng);
+      within = dist <= radius;
+    } else {
+      // Fallback: Default to within-radius if school GPS is unconfigured
+      within = true;
+    }
     const authReq = req as AuthRequest;
     const teacherId = authReq.user!.id;
     const today = new Date();

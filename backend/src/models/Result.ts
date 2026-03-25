@@ -4,11 +4,13 @@ export interface IResult extends Document {
   studentId: mongoose.Types.ObjectId;
   classId: mongoose.Types.ObjectId;
   teacherId: mongoose.Types.ObjectId;
+  examType: 'mid-term' | 'final' | 'semester' | 'quiz' | 'assignment' | 'project' | 'isa1' | 'isa2' | 'isa3' | 'semester1' | 'semester2' | 'semester3' | 'semester4' | 'semester5' | 'semester6' | 'peer-learning';
   marks: {
     subjectId: mongoose.Types.ObjectId;
     score: number;
     maxMarks: number;
   }[];
+  grade: string; // e.g., 'A+', 'B', 'Pass', 'Fail'
   published: boolean;
   pdfUrl?: string;
   createdAt: Date;
@@ -20,6 +22,16 @@ const ResultSchema = new Schema<IResult>(
     studentId: { type: Schema.Types.ObjectId, ref: 'Student', required: true },
     classId: { type: Schema.Types.ObjectId, ref: 'Class', required: true },
     teacherId: { type: Schema.Types.ObjectId, ref: 'Teacher', required: true },
+    examType: { 
+      type: String, 
+      enum: [
+        'mid-term', 'final', 'semester', 'quiz', 'assignment', 'project',
+        'isa1', 'isa2', 'isa3',
+        'semester1', 'semester2', 'semester3', 'semester4', 'semester5', 'semester6',
+        'peer-learning'
+      ], 
+      required: true 
+    },
     marks: [
       {
         subjectId: { type: Schema.Types.ObjectId, ref: 'Subject', required: true },
@@ -27,6 +39,7 @@ const ResultSchema = new Schema<IResult>(
         maxMarks: { type: Number, required: true },
       },
     ],
+    grade: { type: String, required: true },
     published: { type: Boolean, default: false },
     pdfUrl: { type: String, default: '' },
   },

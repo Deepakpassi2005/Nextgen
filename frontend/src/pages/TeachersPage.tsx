@@ -2,6 +2,8 @@ import { GenericTable } from "@/components/dashboard/GenericTable";
 import { Button } from "@/components/ui/button";
 import { Plus, Search, Download, Trash2, Edit2, Eye, EyeOff } from "lucide-react";
 import { useClasses } from '@/lib/hooks';
+import { useStore } from '@/lib/store';
+import { apiClient } from '@/lib/api';
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -10,6 +12,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -23,6 +26,7 @@ import {
   useUpdateTeacher
 } from "@/lib/hooks";
 import { TableSkeleton, EmptyState } from "@/components/shared/LoadingStates";
+import { AdminPasswordPrompt } from "@/components/shared/AdminPasswordPrompt";
 
 export default function TeachersPage() {
   const { data: teachers = [], isLoading: isTeachersLoading } = useTeachers();
@@ -36,14 +40,31 @@ export default function TeachersPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [selectedClasses, setSelectedClasses] = useState<string[]>([]);
+  const { verifyAdminPassword } = useStore();
+  const VIEW_PASSWORD_PLACEHOLDER = '********';
+
   const [isClassTeacher, setIsClassTeacher] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isAuthForPassword, setIsAuthForPassword] = useState(false);
+  const [passwordAccess, setPasswordAccess] = useState<'none' | 'view' | 'edit'>('none');
+
+  const [adminPromptOpen, setAdminPromptOpen] = useState(false);
+  const [adminPromptMode, setAdminPromptMode] = useState<'view' | 'edit'>('view');
+  const [adminPromptError, setAdminPromptError] = useState<string | null>(null);
+  const [adminPromptLoading, setAdminPromptLoading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const getFullImageUrl = (path?: string) => {
+    if (!path) return '';
+    if (path.startsWith('http')) return path;
+    const base = import.meta.env.VITE_API_URL || window.location.origin;
+    return `${base.replace(/\/$/, '')}/${path}`;
+  };
+
   const classesQuery = useClasses();
   const classes = Array.isArray(classesQuery.data) ? classesQuery.data : [];
   const { toast } = useToast();
   
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm<any>();
+  const { register, handleSubmit, reset, setValue, watch, setError, formState: { errors } } = useForm<any>();
 
   const filteredTeachers = teachers.filter((teacher: any) => 
     teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -72,6 +93,24 @@ export default function TeachersPage() {
       emergencyContact: data.emergencyContact,
       alternatePhone: data.alternatePhone,
     };
+
+    // Handle password logic
+    if (editingId) {
+      // For editing: only include password if it was changed (not placeholder)
+      if (data.password && data.password !== VIEW_PASSWORD_PLACEHOLDER) {
+        submitData.password = data.password;
+      } else {
+        // Don't include password if it's the placeholder or empty
+        delete submitData.password;
+      }
+    } else {
+      // For creation: password is required
+      if (!data.password) {
+        setError('root', { message: 'Password is required for new teachers' });
+        return;
+      }
+      submitData.password = data.password;
+    }
 
     if (editingId) {
       updateTeacher(
@@ -120,6 +159,27 @@ export default function TeachersPage() {
     }
   };
 
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast({ title: 'File too large', description: 'Photo must be under 2MB', variant: 'destructive' });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const res = await apiClient.teachers.uploadPhoto(file);
+      setValue('profilePhoto', res.photoPath);
+      toast({ title: 'Photo uploaded successfully' });
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleExport = () => {
     window.print();
   };
@@ -144,19 +204,42 @@ export default function TeachersPage() {
     }
   };
 
-  const handlePasswordEyeClick = () => {
-    if (editingId && !isAuthForPassword) {
-      const ans = prompt('Enter admin password to unlock this field');
-      if (ans === 'admin') {
-        setIsAuthForPassword(true);
-        setShowPassword(false);
-        toast({ description: 'Password field unlocked – enter a new value to change it.' });
-      } else {
-        toast({ title: 'Incorrect admin password', variant: 'destructive' });
-      }
-    } else {
-      setShowPassword(p => !p);
+  const openAdminPasswordPrompt = (mode: 'view' | 'edit') => {
+    setAdminPromptError(null);
+    setAdminPromptMode(mode);
+    setAdminPromptOpen(true);
+  };
+
+  const handleConfirmAdminPassword = async (password: string) => {
+    setAdminPromptLoading(true);
+    setAdminPromptError(null);
+
+    const ok = await verifyAdminPassword(password);
+    if (!ok) {
+      setAdminPromptError('Invalid admin password');
+      setAdminPromptLoading(false);
+      return;
     }
+
+    setPasswordAccess(adminPromptMode === 'edit' ? 'edit' : 'view');
+    // When editing, show what the user types so they can confirm it
+    setShowPassword(adminPromptMode === 'edit');
+
+    if (adminPromptMode === 'edit') {
+      setValue('password', '');
+      // Force the input to be enabled and in text mode for editing
+      setTimeout(() => setShowPassword(true), 0);
+    } else {
+      setValue('password', VIEW_PASSWORD_PLACEHOLDER);
+    }
+
+    setAdminPromptLoading(false);
+    setAdminPromptOpen(false);
+  };
+
+  const handlePasswordEyeClick = () => {
+    if (passwordAccess === 'none') return;
+    setShowPassword((p) => !p);
   };
 
   const handleEdit = (teacher: any) => {
@@ -176,9 +259,10 @@ export default function TeachersPage() {
       address: (teacher as any).address || '',
       emergencyContact: (teacher as any).emergencyContact || '',
       alternatePhone: (teacher as any).alternatePhone || '',
+      profilePhoto: (teacher as any).profilePhoto || '',
     });
     setShowPassword(false);
-    setIsAuthForPassword(false);
+    setPasswordAccess('none'); // Start locked
     // don't store the password; it's hashed and not recoverable
     // Extract IDs from subject objects or use IDs directly
     const subjectIds = (teacher.subjects || []).map((s: any) => 
@@ -224,7 +308,7 @@ export default function TeachersPage() {
               setSelectedSubjects([]);
               setSelectedClasses([]);
               setIsClassTeacher(false);
-              setIsAuthForPassword(false);
+              setPasswordAccess('none');
               reset();
             }
           }}>
@@ -235,6 +319,7 @@ export default function TeachersPage() {
                 setSelectedClasses([]);
                 setIsClassTeacher(false);
                 setShowPassword(false);
+                setPasswordAccess('edit');
               }}>
                 <Plus className="mr-2 h-4 w-4" />
                 Add Teacher
@@ -243,8 +328,12 @@ export default function TeachersPage() {
             <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingId ? "Edit Teacher" : "Add New Teacher"}</DialogTitle>
+                <DialogDescription>
+                  {editingId ? "Update the teacher's profile and assignments." : "Register a new faculty member."}
+                </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 pt-4">
+                {errors.root && <div className="text-xs text-destructive bg-destructive/10 p-2 rounded">{errors.root.message}</div>}
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name</Label>
                   <Input id="name" {...register("name", { required: true })} placeholder="Sarah Wilson" />
@@ -257,33 +346,72 @@ export default function TeachersPage() {
                   {errors.email && <span className="text-xs text-destructive">Email is required</span>}
                 </div>
 
-                <div className="space-y-2 relative">
+                <div className="space-y-2">
+                  <Label htmlFor="profilePhoto">Passport Size Photo (Max 2MB)</Label>
+                  <div className="flex items-center gap-4">
+                    <div className="h-16 w-16 rounded-full bg-muted overflow-hidden border">
+                      {watch('profilePhoto') ? (
+                        <img src={getFullImageUrl(watch('profilePhoto'))} alt="Profile" className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-muted-foreground text-xs text-center p-1">No Photo</div>
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <Input 
+                        id="profilePhotoInput" 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={onFileChange}
+                        disabled={isUploading}
+                      />
+                      <p className="text-[10px] text-muted-foreground mt-1">PNG, JPG or JPEG. Max 2MB.</p>
+                      {isUploading && <p className="text-[10px] text-primary animate-pulse">Uploading...</p>}
+                    </div>
+                  </div>
+                  <input type="hidden" {...register('profilePhoto')} />
+                </div>
+
+                <div className="space-y-2">
                   <Label htmlFor="password">Login Password{editingId ? ' (leave blank to keep)' : ''}</Label>
-                  <Input
-                    id="password"
-                    disabled={editingId && !isAuthForPassword}
-                    type={showPassword ? 'text' : 'password'}
-                    {...register("password", { required: !editingId })}
-                    placeholder="••••••••"
-                  />
-                  <button
-                    type="button"
-                    className="absolute right-2 top-8 text-gray-400 hover:text-gray-600"
-                    onClick={handlePasswordEyeClick}
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                  {errors.password && <span className="text-xs text-destructive">Password is required</span>}
-                  {editingId && !isAuthForPassword && (
-                    <p className="text-xs text-muted-foreground">
-                      Password locked. Click the eye and enter admin password to unlock.
-                    </p>
-                  )}
-                  {editingId && isAuthForPassword && (
-                    <p className="text-xs text-muted-foreground">
-                      Password field unlocked – the current password is hidden for security. Enter a new one to change it.
-                    </p>
-                  )}
+                  <div className="flex gap-2">
+                    <Input
+                      id="password"
+                      type={
+                        passwordAccess === 'edit' ? 'text' : showPassword ? 'text' : 'password'
+                      }
+                      disabled={passwordAccess !== 'edit'}
+                      {...register("password", { 
+                        required: editingId ? false : true,
+                        minLength: { value: 6, message: "Password must be at least 6 characters" }
+                      })}
+                      placeholder={passwordAccess === 'edit' ? 'Enter new password' : '••••••••'}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="whitespace-nowrap"
+                      onClick={() => openAdminPasswordPrompt('edit')}
+                    >
+                      Edit
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {passwordAccess === 'edit' ? (
+                      <button
+                        type="button"
+                        className="text-xs text-muted-foreground hover:text-foreground"
+                        onClick={handlePasswordEyeClick}
+                      >
+                        {showPassword ? 'Hide' : 'Show'}
+                      </button>
+                    ) : null}
+                    <span className="text-xs text-muted-foreground">
+                      {passwordAccess === 'none' && 'Password locked. Use View/Edit to unlock.'}
+                      {passwordAccess === 'view' && 'Passwords are stored securely and cannot be shown. Use Edit to set a new one.'}
+                      {passwordAccess === 'edit' && 'Type a new password. Click Show to verify it visually.'}
+                    </span>
+                  </div>
+                  {errors.password && <span className="text-xs text-destructive">{(errors.password?.message as string) || "Password is required"}</span>}
                 </div>
 
                 <div className="space-y-2">
@@ -442,14 +570,19 @@ export default function TeachersPage() {
               className: "font-medium",
               cell: (teacher: any) => (
                 <div className="flex items-center space-x-3">
-                  <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-accent-foreground font-bold text-xs">
-                    {teacher.name.charAt(0)}
+                  <div className="h-8 w-8 rounded-full bg-accent flex items-center justify-center text-accent-foreground font-bold text-xs overflow-hidden border">
+                    {teacher.profilePhoto ? (
+                      <img src={getFullImageUrl(teacher.profilePhoto)} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      teacher.name.charAt(0)
+                    )}
                   </div>
                   <span>{teacher.name}</span>
                 </div>
               )
             },
             { header: "Email", accessorKey: "email" },
+            { header: "Phone", accessorKey: "phoneNumber" },
             { 
               header: "Subjects", 
               cell: (teacher: any) => {
@@ -511,6 +644,19 @@ export default function TeachersPage() {
           ]}
         />
       )}
+      <AdminPasswordPrompt
+        open={adminPromptOpen}
+        mode={adminPromptMode}
+        isLoading={adminPromptLoading}
+        error={adminPromptError ?? undefined}
+        onOpenChange={(open) => {
+          setAdminPromptOpen(open);
+          if (!open) {
+            setAdminPromptError(null);
+          }
+        }}
+        onConfirm={handleConfirmAdminPassword}
+      />
     </div>
   );
 }

@@ -5,54 +5,71 @@ import { Notice } from '../../models/Notice';
 import { Attendance } from '../../models/Attendance';
 import { Quiz } from '../../models/Quiz';
 import { Result } from '../../models/Result';
+import { Student } from '../../models/Student';
+import { Assignment } from '../../models/Assignment';
+import { StudyMaterial } from '../../models/StudyMaterial';
 import { sendSuccess, sendError } from '../../utils/response';
 import mongoose from 'mongoose';
 
 export const getDashboard = async (req: AuthRequest, res: Response) => {
   try {
-    const studentId = new mongoose.Types.ObjectId(req.user?.id || '');
+    const userId = req.user?.id;
+    const student = await Student.findById(userId);
+    
+    if (!student) {
+      return sendError(res, 'Student account not found. Please log in again.', 401);
+    }
 
-    // today timetable for student's class
-    const student = await Attendance.findOne({ 'students.studentId': studentId });
-    // fallback: we may have stored classId in user profile
-
+    const classId = student.classId;
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const currentDay = days[new Date().getDay()];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const tomorrow = new Date(today);
-    tomorrow.setDate(tomorrow.getDate() + 1);
 
-    const todaysTimetable = await Timetable.find({
-      classId: student?.classId,
-      date: { $gte: today, $lt: tomorrow },
-    });
-
-    const notices = await Notice.find({ classId: student?.classId });
-
-    const attendanceRecords = await Attendance.find({
-      'students.studentId': studentId,
-    });
+    // Run queries in parallel for better performance
+    const [todaysTimetable, notices, attendanceRecords, pendingQuizzes, latestResult, latestAssignment, latestStudyMaterial] = await Promise.all([
+      Timetable.find({ classId, day: currentDay })
+        .populate('subjectId', 'name')
+        .populate('teacherId', 'name')
+        .sort({ timeSlot: 1 }),
+      
+      Notice.find({ 
+        $or: [{ classId }, { target: 'all' }, { target: 'students' }]
+      }).sort({ createdAt: -1 }).limit(10),
+      
+      Attendance.find({ classId, 'students.studentId': student._id }),
+      
+      Quiz.find({ classId, dueDate: { $gte: today } }),
+      
+      Result.findOne({ studentId: student._id }).sort({ createdAt: -1 }),
+      
+      Assignment.findOne({ classId: student.classId }).sort({ createdAt: -1 }).select('_id createdAt'),
+      
+      StudyMaterial.findOne({ classId: student.classId }).sort({ createdAt: -1 }).select('_id createdAt')
+    ]);
+    
     let total = 0, present = 0;
     attendanceRecords.forEach((rec) => {
-      rec.students.forEach((s) => {
+      const studentRecord = rec.students.find(s => s.studentId.toString() === student._id.toString());
+      if (studentRecord) {
         total++;
-        if (s.studentId.toString() === studentId.toString() && s.status === 'present') present++;
-      });
+        if (studentRecord.status === 'present') present++;
+      }
     });
+    
     const attendancePct = total ? (present / total) * 100 : 0;
-
-    const pendingQuizzes = await Quiz.find({
-      classId: student?.classId,
-      dueDate: { $gte: today },
-    });
-
-    const latestResult = await Result.findOne({ studentId }).sort({ createdAt: -1 });
 
     return sendSuccess(res, {
       todaysTimetable,
       notices,
-      attendancePercent: attendancePct,
+      attendancePercent: attendancePct || student.attendance || 0,
       pendingQuizzes,
       latestResult,
+      latestAssignment,
+      latestStudyMaterial,
+      studentName: student.firstName + ' ' + (student.lastName || ''),
+      studentPhoto: student.studentPhoto,
+      averageScore: student.averageScore || 0,
     });
   } catch (err) {
     console.error(err);

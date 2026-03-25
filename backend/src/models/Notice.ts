@@ -7,6 +7,9 @@ export interface INotice extends Document {
   priority: 'low' | 'medium' | 'high';
   audience: 'all' | 'teachers' | 'students';
   author: string;
+  authorId: string;
+  createdByRole: 'admin' | 'teacher';
+  attachments: { filename: string; url: string; mimetype: string; size: number }[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -18,7 +21,16 @@ const NoticeSchema = new Schema<INotice>(
     date: { type: Date, default: Date.now },
     priority: { type: String, enum: ['low', 'medium', 'high'], default: 'medium' },
     audience: { type: String, enum: ['all', 'teachers', 'students'], default: 'all' },
-    author: { type: String, required: true },
+    authorId: { type: String },
+    createdByRole: { type: String, enum: ['admin', 'teacher'], default: 'admin' },
+    attachments: [
+      {
+        filename: { type: String, required: true },
+        url: { type: String, required: true },
+        mimetype: { type: String, default: 'application/octet-stream' },
+        size: { type: Number, default: 0 },
+      },
+    ],
   },
   { timestamps: true }
 );

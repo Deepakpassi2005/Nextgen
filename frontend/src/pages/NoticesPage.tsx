@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Edit2, Clock } from "lucide-react";
+import { Plus, Trash2, Edit2, Clock, Paperclip } from "lucide-react";
+import { FileViewerModal } from "@/components/shared/FileViewerModal";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +21,7 @@ import {
   useDeleteNotice,
   useUpdateNotice,
 } from "@/lib/hooks";
+import { apiClient } from "@/lib/api";
 import { TableSkeleton, EmptyState } from "@/components/shared/LoadingStates";
 
 export default function NoticesPage() {
@@ -31,6 +33,14 @@ export default function NoticesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedAttachment, setSelectedAttachment] = useState<any>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
+
+  const getFullUrl = (url: string) => {
+    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    return `${baseUrl}/${url}`;
+  };
 
   const { toast } = useToast();
   const { register, handleSubmit, reset } = useForm<any>();
@@ -59,10 +69,20 @@ export default function NoticesPage() {
       createNotice(
         { ...data, author: currentUser },
         {
-          onSuccess: () => {
-            toast({ title: "Notice Posted Successfully" });
-            setDialogOpen(false);
-            reset();
+          onSuccess: (newNotice: any) => {
+            const noticeId = newNotice._id || newNotice.id;
+            if (selectedFiles.length > 0) {
+              apiClient.notices.uploadAttachments(noticeId, selectedFiles).then(() => {
+                toast({ title: "Notice Posted with Attachments" });
+                setDialogOpen(false);
+                reset();
+                setSelectedFiles([]);
+              });
+            } else {
+              toast({ title: "Notice Posted Successfully" });
+              setDialogOpen(false);
+              reset();
+            }
           },
         }
       );
@@ -117,6 +137,7 @@ export default function NoticesPage() {
               if (!open) {
                 setEditingId(null);
                 reset();
+                setSelectedFiles([]); // Clear selected files when dialog closes
               }
             }}
           >
@@ -177,6 +198,24 @@ export default function NoticesPage() {
                   </div>
                 </div>
 
+                <div className="space-y-2">
+                  <Label>Attachments</Label>
+                  <Input
+                    type="file"
+                    multiple
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      setSelectedFiles(files);
+                    }}
+                    className="cursor-pointer"
+                  />
+                  {selectedFiles.length > 0 && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {selectedFiles.length} file(s) selected
+                    </p>
+                  )}
+                </div>
+
                 <div className="flex justify-end gap-3 pt-4">
                   <Button
                     type="button"
@@ -230,6 +269,30 @@ export default function NoticesPage() {
                 {notice.content}
               </p>
 
+              {notice.attachments && notice.attachments.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {notice.attachments.map((att: any, idx: number) => (
+                    <Button
+                      key={idx}
+                      variant="secondary"
+                      size="sm"
+                      className="h-7 text-xs flex items-center gap-1 bg-blue-50 text-blue-700 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300 border border-blue-200 dark:border-blue-800"
+                      onClick={() => {
+                        setSelectedAttachment({
+                          filename: att.filename,
+                          url: getFullUrl(att.url),
+                          mimetype: att.mimetype,
+                        });
+                        setIsViewerOpen(true);
+                      }}
+                    >
+                      <Paperclip className="h-3 w-3" />
+                      <span className="truncate max-w-[150px]">{att.filename}</span>
+                    </Button>
+                  ))}
+                </div>
+              )}
+
               <div className="text-xs text-muted-foreground flex items-center gap-2 mb-4">
                 <Clock className="h-3 w-3" />
                 {new Date(notice.date).toLocaleString()}
@@ -261,6 +324,11 @@ export default function NoticesPage() {
           ))}
         </div>
       )}
+      <FileViewerModal
+        isOpen={isViewerOpen}
+        onClose={() => setIsViewerOpen(false)}
+        file={selectedAttachment}
+      />
     </div>
   );
 }

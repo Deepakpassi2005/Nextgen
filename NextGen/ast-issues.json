@@ -1,0 +1,258 @@
+[
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\NoticeDetail.tsx",
+    "type": "Logical&&",
+    "line": 117
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\NoticeDetail.tsx",
+    "type": "Logical&&",
+    "line": 148
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\NoticeHistory.tsx",
+    "type": "Logical&&",
+    "line": 67
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\NoticeHistory.tsx",
+    "type": "Logical&&",
+    "line": 99
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\NoticeHistory.tsx",
+    "type": "Logical&&",
+    "line": 123
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "type": "JSXText",
+    "value": "Select Class",
+    "line": 218
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "type": "JSXText",
+    "value": "Priority:",
+    "line": 254
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "type": "JSXText",
+    "value": "▾",
+    "line": 264
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "type": "Logical&&",
+    "line": 293
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "type": "Logical&&",
+    "line": 305
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "type": "Logical&&",
+    "line": 346
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "type": "JSXText",
+    "value": "Select Students",
+    "line": 386
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "type": "Logical&&",
+    "line": 409
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudentResultScreen.tsx",
+    "type": "Logical&&",
+    "line": 145
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudyMaterialList.tsx",
+    "type": "Logical&&",
+    "line": 161
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "Student Attendance",
+    "line": 166
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "Mark daily presence for your classes",
+    "line": 167
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "CLASS / SECTION",
+    "line": 187
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "DATE",
+    "line": 199
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "Total",
+    "line": 219
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "Present",
+    "line": 226
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "Absent",
+    "line": 233
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "Mark all present",
+    "line": 246
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "Select Class",
+    "line": 263
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "Logical&&",
+    "line": 281
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "No Students Found",
+    "line": 313
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "There are no students enrolled in this class yet.",
+    "line": 314
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "type": "JSXText",
+    "value": "Roll:",
+    "line": 333
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MessagingScreen.tsx",
+    "type": "Logical&&",
+    "line": 156
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MessagingScreen.tsx",
+    "type": "Logical&&",
+    "line": 188
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MessagingScreen.tsx",
+    "type": "Logical&&",
+    "line": 280
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MessagingScreen.tsx",
+    "type": "Logical&&",
+    "line": 286
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\PunchingScreen.tsx",
+    "type": "Logical&&",
+    "line": 193
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\PunchingScreen.tsx",
+    "type": "Logical&&",
+    "line": 209
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "type": "Logical&&",
+    "line": 543
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "type": "Logical&&",
+    "line": 568
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "type": "Logical&&",
+    "line": 647
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "type": "Logical&&",
+    "line": 682
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "type": "Logical&&",
+    "line": 346
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "type": "Logical&&",
+    "line": 501
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "type": "Logical&&",
+    "line": 570
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "type": "Logical&&",
+    "line": 281
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "type": "Logical&&",
+    "line": 553
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "type": "Logical&&",
+    "line": 565
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "type": "Logical&&",
+    "line": 601
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "type": "Logical&&",
+    "line": 613
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialUpload.tsx",
+    "type": "Logical&&",
+    "line": 371
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialUpload.tsx",
+    "type": "Logical&&",
+    "line": 411
+  }
+]

@@ -7,11 +7,15 @@ import {
   BookOpen, 
   Calendar, 
   Bell,
-  BarChart3, 
   LogOut,
   Menu,
   School,
-  X
+  X,
+  CheckCircle,
+  Award,
+  FileText,
+  FileBarChart,
+  HelpCircle
 } from "lucide-react";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
@@ -30,10 +34,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: 'Students', href: '/students', icon: GraduationCap },
     { name: 'Teachers', href: '/teachers', icon: Users },
     { name: 'Classes', href: '/classes', icon: School },
-    { name: 'Subjects', href: '/subjects', icon: BookOpen }, // Added route for consistency
+    { name: 'Subjects', href: '/subjects', icon: BookOpen },
+    { name: 'Attendance', href: '/attendance', icon: CheckCircle },
+    { name: 'Marks', href: '/marks', icon: Award },
+    { name: 'Materials', href: '/materials', icon: FileText },
+    { name: 'Assignments', href: '/assignments', icon: BookOpen },
+    { name: 'Quizzes', href: '/quizzes', icon: HelpCircle },
     { name: 'Timetable', href: '/timetable', icon: Calendar },
-    { name: 'Notices', href: '/notices', icon: Bell },
-    { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+    { name: 'Notices', href: '/notifications', icon: Bell },
+    { name: 'Reports', href: '/reports', icon: FileBarChart },
   ];
 
   const SidebarContent = () => (
