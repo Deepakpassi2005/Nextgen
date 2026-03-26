@@ -120,17 +120,43 @@ export default function QuizManagementScreen({ navigation }: { navigation: Stack
     setSelectedClass(cls || null);
     setSelectedSubject(typeof quiz.subjectId === 'object' ? quiz.subjectId : { _id: quiz.subjectId, name: 'Subject' });
 
-    setQuestions(quiz.questions.map(q => ({
-      ...q,
-      id: q.id || Math.random().toString(36).substr(2, 9),
-      options: q.options.map((o, idx) => ({
-        ...o,
-        id: o.id || `${idx + 1}` // Ensure unique option ID within question
-      }))
-    })));
+    // Map backend questions to frontend format
+    const mappedQuestions = (quiz.questions || []).map((q: any, qIdx: number) => {
+      const qId = q.id || q._id || `q-${qIdx}-${Math.random().toString(36).substr(2, 5)}`;
+      return {
+        id: qId,
+        text: q.text || q.question || '', // Support both formats (backend uses 'question')
+        marks: q.marks || 1,
+        type: q.type || 'mcq',
+        options: Array.isArray(q.options) 
+          ? q.options.map((opt: any, idx: number) => {
+              // Backend often returns options as string[]
+              if (typeof opt === 'string') {
+                return {
+                  id: (idx + 1).toString(),
+                  text: opt,
+                  isCorrect: opt === q.answer // Backend uses 'answer' for the correct option text
+                };
+              }
+              // Fallback if it's already an object
+              return {
+                ...opt,
+                id: opt.id || (idx + 1).toString()
+              };
+            })
+          : [
+              { id: '1', text: '', isCorrect: false },
+              { id: '2', text: '', isCorrect: false },
+              { id: '3', text: '', isCorrect: false },
+              { id: '4', text: '', isCorrect: false },
+            ]
+      };
+    });
 
+    setQuestions(mappedQuestions);
     setIsEditing(true);
-    setExpandedQuestion(quiz.questions[0]?.id || null);
+    // Expand the first question if available
+    setExpandedQuestion(mappedQuestions.length > 0 ? mappedQuestions[0].id : null);
   };
 
   const handleClassSelect = (cls: Class) => {
