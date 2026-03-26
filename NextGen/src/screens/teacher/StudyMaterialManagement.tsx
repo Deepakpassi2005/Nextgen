@@ -368,13 +368,6 @@ const StudyMaterialManagement = ({ navigation }: { navigation: StackNavigationPr
 
         <View style={styles.uploadRow}>
           <Text style={styles.sectionTitle}>Recent Uploads</Text>
-          <TouchableOpacity 
-            style={styles.addBtn}
-            onPress={() => navigation.navigate('StudyMaterialUpload')}
-          >
-            <Plus color="#FFF" size={20} style={{ marginRight: 6 }} />
-            <Text style={styles.addBtnText}>Upload New</Text>
-          </TouchableOpacity>
         </View>
       </Animated.View>
 

@@ -122,7 +122,11 @@ export default function QuizManagementScreen({ navigation }: { navigation: Stack
 
     setQuestions(quiz.questions.map(q => ({
       ...q,
-      id: q.id || Math.random().toString(36).substr(2, 9)
+      id: q.id || Math.random().toString(36).substr(2, 9),
+      options: q.options.map((o, idx) => ({
+        ...o,
+        id: o.id || `${idx + 1}` // Ensure unique option ID within question
+      }))
     })));
 
     setIsEditing(true);

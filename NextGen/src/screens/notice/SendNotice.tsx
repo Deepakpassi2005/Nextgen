@@ -27,6 +27,19 @@ import * as DocumentPicker from 'expo-document-picker';
 import { useNoticeStore, type Notice } from '../../store/noticeStore';
 import apiClient from '../../api/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { COLORS, SPACING, BORDER_RADIUS } from '../../theme/theme';
+import { GlassCard } from '../../components/GlassCard';
+import PageHeader from '../../components/PageHeader';
+import { 
+  ArrowLeft,
+  Bell,
+  ChevronDown,
+  Paperclip,
+  Send,
+  User,
+  Layout,
+  Info
+} from 'lucide-react-native';
 
 interface ClassItem { _id: string; name: string; }
 interface StudentItem { _id: string; firstName: string; lastName?: string; rollNumber: string; }
@@ -212,6 +225,12 @@ export default function SendNotice({ navigation, route }: any) {
 
   return (
     <SafeAreaView style={styles.container}>
+      <PageHeader
+        title={editNotice ? 'Edit Notice' : 'Send Notice'}
+        subtitle="School Announcements"
+        onBack={() => navigation.goBack()}
+      />
+
       {/* Class Selection Modal */}
       <Portal>
         <Dialog visible={showClassModal} onDismiss={() => setShowClassModal(false)}>
@@ -241,11 +260,14 @@ export default function SendNotice({ navigation, route }: any) {
         </Dialog>
       </Portal>
 
-      <View style={styles.content}>
-        <Card style={styles.card}>
-          <Card.Content>
-            <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-              {/* Title row with priority dropdown */}
+      <ScrollView 
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <GlassCard style={styles.card}>
+          <View style={styles.cardInner}>
+            {/* Title row with priority dropdown */}
               <View style={styles.titleRow}>
                 <Text variant="titleLarge" style={styles.cardTitle}>
                   {editNotice ? 'Edit Notice' : 'Send Notice'}
@@ -369,10 +391,10 @@ export default function SendNotice({ navigation, route }: any) {
               >
                 {editNotice ? 'Update Notice' : 'Send Notice'}
               </Button>
-            </ScrollView>
-          </Card.Content>
-        </Card>
-      </View>
+          </View>
+        </GlassCard>
+        <View style={{ height: 40 }} />
+      </ScrollView>
 
       {/* Student Selection Modal */}
       <Portal>
@@ -425,34 +447,35 @@ export default function SendNotice({ navigation, route }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
   content: { flex: 1, padding: 16 },
-  card: { backgroundColor: '#fff', marginBottom: 16, flexShrink: 1 },
-  cardTitle: { fontWeight: 'bold' },
-  label: { fontWeight: '600', marginBottom: 8 },
-  segmentedButtons: { marginBottom: 16 },
+  card: { padding: 0, borderRadius: 24, marginBottom: 20 },
+  cardInner: { padding: 20 },
+  cardTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.text, marginBottom: 15 },
+  label: { fontSize: 13, fontWeight: '800', color: COLORS.textSecondary, marginBottom: 8, letterSpacing: 0.5 },
+  segmentedButtons: { marginBottom: 20 },
   dialogScrollArea: { paddingHorizontal: 0, maxHeight: 300 },
-  selectedListItem: { backgroundColor: '#e6f2ff' },
-  classSection: { marginBottom: 16, padding: 12, backgroundColor: '#f9f9f9', borderRadius: 8, borderWidth: 1, borderColor: '#eee' },
-  switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 },
-  selectedStudentsPreview: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 4, borderWidth: 1, borderColor: '#e0e0e0' },
-  previewText: { color: '#666', flex: 1 },
+  selectedListItem: { backgroundColor: COLORS.primary + '10' },
+  classSection: { marginBottom: 20, padding: 15, backgroundColor: COLORS.surface, borderRadius: 16, borderWidth: 1, borderColor: COLORS.border + '60' },
+  switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
+  selectedStudentsPreview: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: COLORS.border + '40' },
+  previewText: { color: COLORS.textSecondary, flex: 1, fontSize: 13 },
   dialogContent: { paddingHorizontal: 0, paddingBottom: 0 },
-  searchBar: { marginHorizontal: 16, marginBottom: 8, elevation: 0, backgroundColor: '#f0f0f0' },
-  noResultsText: { textAlign: 'center', color: '#888', paddingVertical: 24 },
+  searchBar: { marginHorizontal: 16, marginBottom: 12, elevation: 0, backgroundColor: '#f0f0f0', borderRadius: 12 },
+  noResultsText: { textAlign: 'center', color: COLORS.textSecondary, paddingVertical: 24 },
   checkboxItem: { paddingHorizontal: 16, paddingVertical: 2 },
-  input: { marginBottom: 12 },
-  attachmentSection: { marginBottom: 16 },
-  attachButton: { alignSelf: 'flex-start', marginBottom: 8 },
-  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  input: { marginBottom: 15, backgroundColor: '#FFF' },
+  attachmentSection: { marginBottom: 20 },
+  attachButton: { alignSelf: 'flex-start', marginBottom: 12, borderRadius: 12 },
+  titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
   prioritySelector: { flexDirection: 'row', alignItems: 'center' },
-  headerLabel: { fontSize: 16, color: '#333', marginRight: 4, fontWeight: 'bold' },
-  priorityPill: { flexDirection: 'row', alignItems: 'center', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, gap: 4, borderWidth: 1.5, borderColor: '#ccc' },
-  priorityPillText: { fontSize: 14, fontWeight: 'bold', color: '#333' },
-  priorityChevron: { fontSize: 12, fontWeight: '700', marginLeft: 2, color: '#333' },
+  headerLabel: { fontSize: 13, color: COLORS.textSecondary, marginRight: 8, fontWeight: '800' },
+  priorityPill: { flexDirection: 'row', alignItems: 'center', borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6, gap: 4, borderWidth: 1.5, borderColor: COLORS.border },
+  priorityPillText: { fontSize: 12, fontWeight: 'bold', color: COLORS.text },
+  priorityChevron: { fontSize: 10, fontWeight: '700', marginLeft: 2, color: COLORS.textSecondary },
   menuContent: { backgroundColor: '#fff', borderRadius: 12, elevation: 6, minWidth: 140 },
-  menuItemTitle: { fontSize: 16, color: '#333', fontWeight: '500' },
+  menuItemTitle: { fontSize: 15, color: COLORS.text, fontWeight: '500' },
   attachmentsList: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  attachmentChip: { backgroundColor: '#e6f2ff' },
-  button: { marginTop: 8 },
+  attachmentChip: { backgroundColor: COLORS.primary + '10', borderRadius: 8 },
+  button: { marginTop: 10, borderRadius: 14, height: 54, justifyContent: 'center' },
 });

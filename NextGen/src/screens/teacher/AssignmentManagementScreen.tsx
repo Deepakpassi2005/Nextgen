@@ -260,6 +260,13 @@ const AssignmentManagementScreen = ({ navigation }: { navigation: StackNavigatio
     }
   };
 
+  const removeAttachment = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index),
+    }));
+  };
+
   const renderAssignmentCard = ({ item, index }: any) => (
     <Animated.View entering={FadeInDown.delay(index * 100).springify()}>
       <GlassCard style={styles.card}>
@@ -438,9 +445,19 @@ const AssignmentManagementScreen = ({ navigation }: { navigation: StackNavigatio
                 <Upload size={20} color={COLORS.primary} />
                 <Text style={styles.uploadBtnText}>Attach Document (Optional)</Text>
               </TouchableOpacity>
-              {formData.attachments.map((att, i) => (
-                <Text key={i} style={{ marginTop: 5, color: COLORS.textSecondary }}>Attached: {att.name}</Text>
-              ))}
+              {formData.attachments.length > 0 && (
+                <View style={styles.attachmentList}>
+                  {formData.attachments.map((att, i) => (
+                    <View key={i} style={styles.attachmentChip}>
+                      <Paperclip size={14} color={COLORS.primary} />
+                      <Text style={styles.attachmentChipText} numberOfLines={1}>{att.name}</Text>
+                      <TouchableOpacity onPress={() => removeAttachment(i)} style={styles.removeChipBtn}>
+                        <X size={14} color={COLORS.error} />
+                      </TouchableOpacity>
+                    </View>
+                  ))}
+                </View>
+              )}
 
               <TouchableOpacity 
                 style={[styles.submitBtn, submitting && { opacity: 0.7 }]} 
@@ -749,6 +766,31 @@ const styles = StyleSheet.create({
   cancelBtnText: { color: COLORS.text, fontWeight: '600' },
   saveBtn: { flex: 1, backgroundColor: COLORS.primary, padding: 14, borderRadius: 10, alignItems: 'center' },
   saveBtnText: { color: '#FFF', fontWeight: '600' },
+  attachmentList: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginTop: 8,
+    marginBottom: 15,
+  },
+  attachmentChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.primary + '10',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    gap: 6,
+    maxWidth: '100%',
+  },
+  attachmentChipText: {
+    fontSize: 12,
+    color: COLORS.text,
+    flexShrink: 1,
+  },
+  removeChipBtn: {
+    padding: 2,
+  },
 });
 
 export default AssignmentManagementScreen;

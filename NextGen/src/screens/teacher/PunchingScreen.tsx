@@ -77,10 +77,23 @@ const PunchingScreen = () => {
   const [isLocating, setIsLocating] = useState(false);
 
 
+  const [isAlreadyPunchedIn, setIsAlreadyPunchedIn] = useState(false);
+
   const fetchPunchHistory = async () => {
     try {
       const response = await apiClient.get('/teacher/punch-history');
-      setHistory(response.data.data);
+      const historyData = response.data.data || [];
+      setHistory(historyData);
+      
+      // Check if already punched in today
+      if (historyData.length > 0) {
+        const today = new Date().toISOString().split('T')[0];
+        const hasToday = historyData.some((p: any) => {
+          const punchDate = p.punchIn ? new Date(p.punchIn).toISOString().split('T')[0] : null;
+          return punchDate === today;
+        });
+        setIsAlreadyPunchedIn(hasToday);
+      }
     } catch (error) {
       console.error('Error fetching punch history', error);
     }
@@ -124,6 +137,11 @@ const PunchingScreen = () => {
       return;
     }
 
+    if (isAlreadyPunchedIn) {
+      Alert.alert('Info', 'You have already punched in for today.');
+      return;
+    }
+
     setLoading(true);
     try {
       const response = await apiClient.post('/teacher/punch-in', {
@@ -150,8 +168,12 @@ const PunchingScreen = () => {
             <Clock size={18} color={COLORS.primary} />
           </View>
           <View style={styles.historyInfo}>
-            <Text style={styles.historyDate}>{new Date(item.punchIn).toLocaleDateString()}</Text>
-            <Text style={styles.historyTime}>{new Date(item.punchIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+            <Text style={styles.historyDate}>
+              {item.punchIn ? new Date(item.punchIn).toLocaleDateString() : 'Invalid Date'}
+            </Text>
+            <Text style={styles.historyTime}>
+              {item.punchIn ? new Date(item.punchIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}
+            </Text>
           </View>
           <View style={styles.statusBadge}>
             <CheckCircle2 size={14} color={COLORS.success} />
@@ -204,12 +226,16 @@ const PunchingScreen = () => {
             )}
 
             <CustomButton
-              title={loading ? "Verifying..." : "Punch In Now"}
+              title={loading ? "Verifying..." : isAlreadyPunchedIn ? "Punch Registered" : "Punch In Now"}
               onPress={handlePunchIn}
               loading={loading}
-              disabled={!isWithinRadius || loading || isLocating}
-              style={[styles.punchBtn, !isWithinRadius && styles.punchBtnDisabled]}
-              icon={<Navigation size={20} color="#FFF" />}
+              disabled={!isWithinRadius || loading || isLocating || isAlreadyPunchedIn}
+              style={[
+                styles.punchBtn, 
+                (!isWithinRadius || isAlreadyPunchedIn) && styles.punchBtnDisabled,
+                isAlreadyPunchedIn && { backgroundColor: COLORS.success }
+              ]}
+              icon={isAlreadyPunchedIn ? <CheckCircle size={20} color="#FFF" /> : <Navigation size={20} color="#FFF" />}
             />
             
             {!!(!isWithinRadius && !isLocating) && (

@@ -133,6 +133,10 @@ const MarkAttendanceScreen = ({ navigation }: { navigation: StackNavigationProp<
   const changeDate = (days: number) => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() + days);
+    
+    // Prevent future dates
+    if (newDate > new Date()) return;
+    
     setSelectedDate(newDate);
   };
 
@@ -197,7 +201,11 @@ const MarkAttendanceScreen = ({ navigation }: { navigation: StackNavigationProp<
               <RNText style={styles.dateValueText}>
                 {selectedDate.toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
               </RNText>
-              <TouchableOpacity onPress={() => changeDate(1)} style={styles.dateArrow}>
+              <TouchableOpacity 
+                onPress={() => changeDate(1)} 
+                style={[styles.dateArrow, selectedDate.toDateString() === new Date().toDateString() && { opacity: 0.3 }]}
+                disabled={selectedDate.toDateString() === new Date().toDateString()}
+              >
                 <ChevronRight size={18} color={COLORS.primary} />
               </TouchableOpacity>
             </View>
