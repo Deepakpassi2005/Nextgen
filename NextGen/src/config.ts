@@ -4,6 +4,10 @@ import { Platform } from 'react-native';
 // IP address for physical device debugging (replace with your computer's IP)
 const MANUAL_IP = '10.64.112.85'; 
 
+// For production, replace this with your Render backend URL
+// Example: 'https://asset-manager-backend.onrender.com/api'
+const PRODUCTION_API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://YOUR_BACKEND_URL.onrender.com/api';
+
 // Dynamically get the IP address of the Metro bundler to connect physical devices
 const debuggerHost = Constants.expoConfig?.hostUri;
 let localhost = debuggerHost ? debuggerHost.split(':')[0] : MANUAL_IP;
@@ -14,8 +18,8 @@ if (Platform.OS === 'android' && (localhost === 'localhost' || localhost === '12
 }
 
 export const CONFIG = {
-  // Use dynamically resolved IP for local development
-  API_BASE_URL: `http://${localhost}:5001/api`,
+  // Use production URL if not in development, otherwise use dynamic local IP
+  API_BASE_URL: __DEV__ ? `http://${localhost}:5001/api` : PRODUCTION_API_URL,
   
   APP_NAME: 'NextGen School',
   VERSION: '1.0.0',
