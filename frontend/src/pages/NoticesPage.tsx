@@ -21,7 +21,7 @@ import {
   useDeleteNotice,
   useUpdateNotice,
 } from "@/lib/hooks";
-import { apiClient } from "@/lib/api";
+import { apiClient, BASE_URL } from "@/lib/api";
 import { TableSkeleton, EmptyState } from "@/components/shared/LoadingStates";
 
 export default function NoticesPage() {
@@ -38,8 +38,7 @@ export default function NoticesPage() {
   const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   const getFullUrl = (url: string) => {
-    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    return `${baseUrl}/${url}`;
+    return `${BASE_URL}/${url.replace(/^\/+/, '')}`;
   };
 
   const { toast } = useToast();

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Search, Download, Trash2, Edit2, Eye, EyeOff } from "lucide-react";
 import { useClasses } from '@/lib/hooks';
 import { useStore } from '@/lib/store';
-import { apiClient } from '@/lib/api';
+import { apiClient, BASE_URL } from '@/lib/api';
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -56,8 +56,7 @@ export default function TeachersPage() {
   const getFullImageUrl = (path?: string) => {
     if (!path) return '';
     if (path.startsWith('http')) return path;
-    const base = import.meta.env.VITE_API_URL || window.location.origin;
-    return `${base.replace(/\/$/, '')}/${path}`;
+    return `${BASE_URL}/${path.replace(/^\/+/, '')}`;
   };
 
   const classesQuery = useClasses();

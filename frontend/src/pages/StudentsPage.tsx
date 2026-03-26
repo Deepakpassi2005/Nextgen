@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useClasses, useStudents, useStudentsByClass, useCreateStudent, useDeleteStudent, useUpdateStudent } from '@/lib/hooks';
 import { useStore } from '@/lib/store';
-import { apiClient } from '@/lib/api';
+import { apiClient, BASE_URL } from '@/lib/api';
 import { TableSkeleton, EmptyState } from '@/components/shared/LoadingStates';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -70,8 +70,7 @@ export default function StudentsPage(): React.ReactElement {
   const getFullImageUrl = (path?: string) => {
     if (!path) return '';
     if (path.startsWith('http')) return path;
-    const base = import.meta.env.VITE_API_URL || window.location.origin;
-    return `${base.replace(/\/$/, '')}/${path}`;
+    return `${BASE_URL}/${path.replace(/^\/+/, '')}`;
   };
 
   // Data hooks (these return unknown-underlying data; we coerce safely)

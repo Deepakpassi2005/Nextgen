@@ -23,7 +23,7 @@ function getBaseUrl() {
   throw new Error('Unable to determine API base URL');
 }
 
-const BASE_URL = getBaseUrl();
+export const BASE_URL = getBaseUrl();
 
 async function handleResponse<T>(res: Response): Promise<T> {
   // parse JSON body if present

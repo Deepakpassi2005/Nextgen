@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMaterials, useMaterialsByClass, useSubjects, useCreateMaterial, useUpdateMaterial, useDeleteMaterial } from '../lib/hooks';
+import { BASE_URL, apiClient } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
@@ -28,7 +29,7 @@ const MaterialsPage = () => {
 
   const { data: classes, isLoading: classesLoading } = useQuery({
     queryKey: ['classes'],
-    queryFn: () => fetch('/api/classes').then(res => res.json()).then(data => data.data || []),
+    queryFn: () => apiClient.classes.getAll(),
   });
 
   const { data: subjectsForFilter = [] } = useSubjects(selectedClass === 'all' ? '' : selectedClass);
@@ -90,7 +91,7 @@ const MaterialsPage = () => {
       // For simplicity in Admin, we'll just open the file or use a new endpoint.
       // Let's use the fileUrl directly if it's public.
       
-      const response = await fetch(`/${attachmentUrl.replace(/^\/+/, '')}`, {
+      const response = await fetch(`${BASE_URL}/${attachmentUrl.replace(/^\/+/, '')}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -399,7 +400,7 @@ const MaterialsPage = () => {
                             variant="ghost"
                             size="sm"
                             className="h-8 px-2 text-gray-400 hover:text-blue-600 hover:bg-blue-100/50 flex items-center space-x-1"
-                            onClick={() => window.open(`/${att.fileUrl.replace(/^\/+/, '')}`, '_blank')}
+                            onClick={() => window.open(`${BASE_URL}/${att.fileUrl.replace(/^\/+/, '')}`, '_blank')}
                             title="View online"
                           >
                             <Eye className="h-4 w-4" />

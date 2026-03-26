@@ -6,6 +6,7 @@ import { Loader2, Download, ClipboardList, CheckCircle, Clock } from 'lucide-rea
 import { Button } from '../components/ui/button';
 import { toast } from '../hooks/use-toast';
 import { useSubjects } from '../lib/hooks';
+import { BASE_URL, apiClient } from '../lib/api';
 
 const AssignmentsPage = () => {
   const [selectedClass, setSelectedClass] = useState('all');
@@ -14,13 +15,7 @@ const AssignmentsPage = () => {
   // Fetch classes
   const { data: classes, isLoading: classesLoading } = useQuery({
     queryKey: ['classes'],
-    queryFn: async () => {
-      const res = await fetch('/api/classes', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
-      });
-      const data = await res.json();
-      return data.data || [];
-    },
+    queryFn: () => apiClient.classes.getAll(),
   });
 
   // Fetch subjects (from existing hook, relying on its internal implementation)
@@ -36,7 +31,7 @@ const AssignmentsPage = () => {
       if (selectedSubject !== 'all') params.append('subjectId', selectedSubject);
       if (params.toString()) url += `?${params.toString()}`;
 
-      const res = await fetch(url, {
+      const res = await fetch(`${BASE_URL}${url}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
       });
       if (!res.ok) throw new Error('Failed to fetch assignments');
@@ -54,7 +49,7 @@ const AssignmentsPage = () => {
       if (params.toString()) url += `?${params.toString()}`;
 
       const token = localStorage.getItem('authToken');
-      const response = await fetch(url, {
+      const response = await fetch(`${BASE_URL}${url}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
