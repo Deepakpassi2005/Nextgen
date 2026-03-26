@@ -27,6 +27,7 @@ connectDB();
 // App & Server Setup
 // =========================
 const app = express();
+app.set('trust proxy', 1); // Trust first proxy (e.g. Render/Vercel)
 const httpServer = createServer(app);
 
 // =========================
@@ -102,7 +103,7 @@ app.use(compression());
 // Rate Limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: process.env.NODE_ENV === "development" ? 2000 : 100, // Higher limit in development
+  max: process.env.NODE_ENV === "development" ? 2000 : 500, // Increased limit in production
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: "Too many requests, please try again later." }
