@@ -89,7 +89,7 @@ const PunchingScreen = () => {
       if (historyData.length > 0) {
         const today = new Date().toISOString().split('T')[0];
         const hasToday = historyData.some((p: any) => {
-          const punchDate = p.punchIn ? new Date(p.punchIn).toISOString().split('T')[0] : null;
+          const punchDate = p.timestamp ? new Date(p.timestamp).toISOString().split('T')[0] : null;
           return punchDate === today;
         });
         setIsAlreadyPunchedIn(hasToday);
@@ -169,10 +169,10 @@ const PunchingScreen = () => {
           </View>
           <View style={styles.historyInfo}>
             <Text style={styles.historyDate}>
-              {item.punchIn ? new Date(item.punchIn).toLocaleDateString() : 'Invalid Date'}
+              {item.timestamp ? new Date(item.timestamp).toLocaleDateString() : 'Invalid Date'}
             </Text>
             <Text style={styles.historyTime}>
-              {item.punchIn ? new Date(item.punchIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}
+              {item.timestamp ? new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--:--'}
             </Text>
           </View>
           <View style={styles.statusBadge}>
@@ -187,8 +187,8 @@ const PunchingScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <PageHeader
-        title="Attendance"
-        subtitle="Digital Check-in Center"
+        title="Punching"
+        subtitle="Employee Punching System"
         onBack={() => navigation.goBack()}
         rightElement={
           <TouchableOpacity onPress={updateLocation} style={styles.locBtn}>
@@ -246,7 +246,7 @@ const PunchingScreen = () => {
 
         <View style={styles.sectionHeader}>
            <HistoryIcon size={20} color={COLORS.text} style={{ marginRight: 8 }} />
-           <Text style={styles.sectionTitle}>Check-in History</Text>
+           <Text style={styles.sectionTitle}>Punching History</Text>
         </View>
 
         {history.length === 0 ? (

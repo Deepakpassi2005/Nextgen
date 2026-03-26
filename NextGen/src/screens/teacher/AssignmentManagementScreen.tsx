@@ -13,6 +13,8 @@ import {
   TextInput,
   ScrollView,
   Linking,
+  PanResponder,
+  Animated as RNAnimated
 } from 'react-native';
 import { CONFIG } from '../../config';
 import { COLORS, SPACING, BORDER_RADIUS } from '../../theme/theme';
@@ -81,6 +83,40 @@ const AssignmentManagementScreen = ({ navigation }: { navigation: StackNavigatio
   const [activeSubmission, setActiveSubmission] = useState<any>(null);
   const [gradeInput, setGradeInput] = useState('');
   const [feedbackInput, setFeedbackInput] = useState('');
+
+  // PanResponder for swipe-to-close modal
+  const panY = React.useRef(new RNAnimated.Value(0)).current;
+  const panResponder = React.useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gestureState) => {
+        if (gestureState.dy > 0) {
+          panY.setValue(gestureState.dy);
+        }
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (gestureState.dy > 150) {
+          closeSubmissions();
+        } else {
+          RNAnimated.spring(panY, {
+            toValue: 0,
+            useNativeDriver: false,
+          }).start();
+        }
+      },
+    })
+  ).current;
+
+  const closeSubmissions = () => {
+    RNAnimated.timing(panY, {
+      toValue: 1000,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setSubmissionsModalVisible(false);
+      panY.setValue(0);
+    });
+  };
 
   const fetchClasses = async () => {
     try {
@@ -474,10 +510,18 @@ const AssignmentManagementScreen = ({ navigation }: { navigation: StackNavigatio
       {/* Submissions Modal */}
       <Modal visible={submissionsModalVisible} animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={styles.fullModalContent}>
+          <RNAnimated.View 
+            style={[
+              styles.fullModalContent, 
+              { transform: [{ translateY: panY }] }
+            ]}
+          >
+            <View style={styles.swipeHandleContainer} {...panResponder.panHandlers}>
+              <View style={styles.swipeHandle} />
+            </View>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Submissions</Text>
-              <TouchableOpacity onPress={() => setSubmissionsModalVisible(false)}>
+              <TouchableOpacity onPress={closeSubmissions}>
                 <X size={24} color={COLORS.textSecondary} />
               </TouchableOpacity>
             </View>
@@ -549,7 +593,7 @@ const AssignmentManagementScreen = ({ navigation }: { navigation: StackNavigatio
                 )}
               />
             )}
-          </View>
+          </RNAnimated.View>
         </View>
       </Modal>
 
@@ -790,6 +834,17 @@ const styles = StyleSheet.create({
   },
   removeChipBtn: {
     padding: 2,
+  },
+  swipeHandleContainer: {
+    width: '100%',
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  swipeHandle: {
+    width: 40,
+    height: 5,
+    borderRadius: 2.5,
+    backgroundColor: COLORS.border,
   },
 });
 

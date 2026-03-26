@@ -27,7 +27,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { useNoticeStore, type Notice } from '../../store/noticeStore';
 import apiClient from '../../api/client';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { COLORS, SPACING, BORDER_RADIUS } from '../../theme/theme';
+import { COLORS, SPACING, BORDER_RADIUS, SHADOWS } from '../../theme/theme';
 import { GlassCard } from '../../components/GlassCard';
 import PageHeader from '../../components/PageHeader';
 import { 
@@ -447,16 +447,24 @@ export default function SendNotice({ navigation, route }: any) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  container: { flex: 1, backgroundColor: COLORS.background },
   content: { flex: 1, padding: 16 },
-  card: { padding: 0, borderRadius: 24, marginBottom: 20 },
-  cardInner: { padding: 20 },
-  cardTitle: { fontSize: 18, fontWeight: 'bold', color: COLORS.text, marginBottom: 15 },
-  label: { fontSize: 13, fontWeight: '800', color: COLORS.textSecondary, marginBottom: 8, letterSpacing: 0.5 },
-  segmentedButtons: { marginBottom: 20 },
-  dialogScrollArea: { paddingHorizontal: 0, maxHeight: 300 },
-  selectedListItem: { backgroundColor: COLORS.primary + '10' },
-  classSection: { marginBottom: 20, padding: 15, backgroundColor: COLORS.surface, borderRadius: 16, borderWidth: 1, borderColor: COLORS.border + '60' },
+  card: { padding: 0, borderRadius: 24, marginBottom: 20, backgroundColor: COLORS.surface, ...SHADOWS.lg },
+  cardInner: { padding: 24 },
+  cardTitle: { fontSize: 22, fontWeight: '900', color: COLORS.text, marginBottom: 8, letterSpacing: -0.5 },
+  label: { fontSize: 12, fontWeight: '800', color: COLORS.primary, marginBottom: 12, letterSpacing: 1, textTransform: 'uppercase' },
+  segmentedButtons: { marginBottom: 24, backgroundColor: COLORS.surfaceMuted, borderRadius: 14, padding: 4 },
+  dialogScrollArea: { paddingHorizontal: 0, maxHeight: 400 },
+  selectedListItem: { backgroundColor: COLORS.primary + '08' },
+  classSection: { 
+    marginBottom: 24, 
+    padding: 18, 
+    backgroundColor: COLORS.surface, 
+    borderRadius: 20, 
+    borderWidth: 1.5, 
+    borderColor: COLORS.primary + '15',
+    ...SHADOWS.sm 
+  },
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
   selectedStudentsPreview: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#fff', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 8, borderWidth: 1, borderColor: COLORS.border + '40' },
   previewText: { color: COLORS.textSecondary, flex: 1, fontSize: 13 },
