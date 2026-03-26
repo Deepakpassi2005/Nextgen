@@ -6,7 +6,7 @@ const MANUAL_IP = '10.64.112.85';
 
 // For production, replace this with your Render backend URL
 // Example: 'https://asset-manager-backend.onrender.com/api'
-const PRODUCTION_API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://YOUR_BACKEND_URL.onrender.com/api';
+const PRODUCTION_API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://asset-manager-backend-tga9.onrender.com/api';
 
 // Dynamically get the IP address of the Metro bundler to connect physical devices
 const debuggerHost = Constants.expoConfig?.hostUri;
