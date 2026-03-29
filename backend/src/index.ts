@@ -116,28 +116,16 @@ app.use("/api", limiter);
 // JSON parser
 app.use(
   express.json({
-    verify: (req: any, _res, buf) => {
-      req.rawBody = buf;
-    },
-    // Don't parse JSON if the request is multipart
-    type: (req) => {
-      const contentType = req.headers['content-type'];
-      return !!contentType && contentType.includes('application/json');
-    }
   })
 );
 
 app.use(express.urlencoded({ extended: false }));
 
 // Serve uploads directory statically
-// backend is C:\Users\acer\Desktop\Nextgen-main\backend
-// uploads is C:\Users\acer\Desktop\Nextgen-main\uploads
-const uploadsPath = path.join(process.cwd(), "..", "uploads");
-console.log(`[Static] Resolving uploads from: ${uploadsPath}`);
-
+const uploadsPath = path.resolve(process.cwd(), "..", "uploads");
+console.log(`[Static] Serving uploads from: ${uploadsPath}`);
 if (!fs.existsSync(uploadsPath)) {
-  console.warn(`[Static] WARNING: Uploads directory does not exist at ${uploadsPath}. Creating it...`);
-  fs.mkdirSync(uploadsPath, { recursive: true });
+  console.warn(`[Static] WARNING: Uploads directory does not exist at ${uploadsPath}`);
 }
 app.use("/uploads", express.static(uploadsPath));
 

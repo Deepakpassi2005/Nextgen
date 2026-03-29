@@ -46,40 +46,25 @@ export const submitQuiz = async (req: AuthRequest, res: Response) => {
   try {
     const studentId = new mongoose.Types.ObjectId(req.user?.id || '');
     const { quizId, answers } = req.body;
-    
+
     const existing = await QuizSubmission.findOne({ quizId, studentId });
     if (existing) return sendError(res, 'Already submitted', 409);
 
     const quiz = await Quiz.findById(quizId);
     if (!quiz) return sendError(res, 'Quiz not found', 404);
 
-    // Calculate score using a more robust ID-based matching (handles shuffled questions)
+    // Calculate score
     let score = 0;
-    const gradedAnswers = answers.map((ans: any) => {
-      // Find the specific question by its ID from the submitted answers
-      const question = quiz.questions.find(q => String(q._id) === String(ans.questionId));
-      
-      if (!question) {
-        console.warn(`[student.submitQuiz] Question ID ${ans.questionId} not found in Quiz ${quizId}`);
-        return { ...ans, isCorrect: false };
-      }
-
-      // Compare the submitted answer text with the stored correct answer text
-      const isCorrect = String(question.answer).trim() === String(ans.answer).trim();
-      
-      if (isCorrect) {
-        score += (question.marks || 1);
-        console.log(`[student.submitQuiz] Question ${ans.questionId} - CORRECT`);
-      } else {
-        console.log(`[student.submitQuiz] Question ${ans.questionId} - INCORRECT. Expected: "${question.answer}", Got: "${ans.answer}"`);
-      }
-
+    const gradedAnswers = answers.map((ans: any, index: number) => {
+      const question = quiz.questions[index];
+      const isCorrect = question && question.answer === ans.answer;
+      if (isCorrect) score += (question.marks || 1);
       return { ...ans, isCorrect };
     });
 
-    const submission = new QuizSubmission({ 
-      quizId, 
-      studentId, 
+    const submission = new QuizSubmission({
+      quizId,
+      studentId,
       answers: gradedAnswers,
       score,
       totalMarks: quiz.totalMarks

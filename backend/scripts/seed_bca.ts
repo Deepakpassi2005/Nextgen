@@ -166,13 +166,15 @@ async function seed() {
     }
   }
 
-  // 5. Create Timetables
+  // 5. Create Timetables (Ensuring ALL classes are covered)
   const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
   const timeSlots = ['09:00 AM', '10:00 AM', '11:15 AM', '12:15 PM'];
   const timetableRecords = [];
 
   for (const cls of classes) {
     const classSubs = subjects.filter(s => s.classId.toString() === cls._id.toString());
+    console.log(`Generating timetable for ${cls.name} (${classSubs.length} subjects found)`);
+    
     for (const day of days) {
       for (let sIdx = 0; sIdx < timeSlots.length; sIdx++) {
         const subject = classSubs[sIdx % classSubs.length];
@@ -188,103 +190,6 @@ async function seed() {
         await slot.save();
         timetableRecords.push(slot);
       }
-    }
-  }
-
-  // 6. Create Notices
-  const notices = [
-    { title: 'Welcome to New Semester', content: 'Welcome all students to the new academic year.', priority: 'high', audience: 'all' },
-    { title: 'BCA Workshop', content: 'A workshop on Career in IT is scheduled for Friday.', priority: 'medium', audience: 'students' },
-    { title: 'FYBCA Orientation', content: 'Orientation for FYBCA students in Room 101.', priority: 'high', audience: 'students', classId: classes[0]._id },
-  ];
-
-  const noticeRecords = [];
-  for (const n of notices) {
-    const notice = new Notice({
-      ...n,
-      authorId: admin._id,
-      createdByRole: 'admin'
-    });
-    await notice.save();
-    noticeRecords.push(notice);
-  }
-
-  // 7. Create Quizzes
-  const quizRecords = [];
-  for (const cls of classes) {
-    const classSubjects = subjects.filter(s => s.classId.toString() === cls._id.toString());
-    for (let i = 0; i < 2; i++) {
-        const sub = classSubjects[i % classSubjects.length];
-        const teacherId = sub.teacherIds![0];
-        const quiz = new Quiz({
-            title: `${sub.name} Quiz ${i + 1}`,
-            description: `Sample quiz for ${sub.name}`,
-            classId: cls._id,
-            subjectId: sub._id,
-            teacherId,
-            questions: [
-                { question: 'What is the full form of BCA?', options: ['Bachelor of Computer Applications', 'Basic Computer App', 'Big Computer App', 'None'], answer: 'Bachelor of Computer Applications' },
-                { question: 'Who developed C Language?', options: ['Dennis Ritchie', 'Bjarne Stroustrup', 'James Gosling', 'Guido van Rossum'], answer: 'Dennis Ritchie' }
-            ],
-            totalMarks: 2,
-            duration: 15,
-            isPublished: true,
-            isActive: true,
-            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-        });
-        await quiz.save();
-        quizRecords.push(quiz);
-    }
-  }
-
-  // 8. Create Assignments
-  const assignmentRecords = [];
-  for (const cls of classes) {
-    const classSubjects = subjects.filter(s => s.classId.toString() === cls._id.toString());
-    for (let i = 0; i < 2; i++) {
-        const sub = classSubjects[i % classSubjects.length];
-        const teacherId = sub.teacherIds![0];
-        const assignment = new Assignment({
-            title: `${sub.name} Assignment ${i + 1}`,
-            description: `Please complete the exercises for ${sub.name}`,
-            classId: cls._id,
-            subjectId: sub._id,
-            teacherId,
-            dueDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-            attachments: []
-        });
-        await assignment.save();
-        assignmentRecords.push(assignment);
-    }
-  }
-
-  // 9. Create Attendance (Last 7 days)
-  console.log('📅 Generating Attendance records...');
-  const attendanceRecords = [];
-  for (const cls of classes) {
-    const teacherId = cls.teacherId;
-    const classStudents = studentRecords.filter(s => s.className === cls.name);
-    
-    for (let i = 0; i < 7; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        date.setHours(0, 0, 0, 0);
-
-        // Skip weekends
-        if (date.getDay() === 0 || date.getDay() === 6) continue;
-
-        const attendance = new Attendance({
-            classId: cls._id,
-            teacherId,
-            date,
-            students: classStudents.map(s => ({
-                studentId: s.model._id,
-                status: Math.random() > 0.1 ? 'present' : 'absent',
-                remarks: ''
-            }))
-        });
-        await attendance.save();
-        attendanceRecords.push(attendance);
     }
   }
 
@@ -386,7 +291,9 @@ async function seed() {
     { header: 'Teacher', key: 'teacher', width: 25 },
   ]);
   
+  // Sort timetable by Class, Day (custom order), Time
   const dayOrder: Record<string, number> = { 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3, 'Thursday': 4, 'Friday': 5 };
+  
   const ttDatas = [];
   for (const tt of timetableRecords) {
     const cls = classes.find(c => c._id.toString() === tt.classId.toString());
@@ -400,84 +307,12 @@ async function seed() {
       teacher: teach?.name
     });
   }
+  
   ttDatas.sort((a,b) => {
     if (a.class !== b.class) return (a.class || '').localeCompare(b.class || '');
     if (a.day !== b.day) return dayOrder[a.day] - dayOrder[b.day];
     return a.slot.localeCompare(b.slot);
   }).forEach(row => ttSheet.addRow(row));
-
-  // 6. Quizzes Sheet
-  const qSheet = setupSheet('Quizzes', [
-    { header: 'Title', key: 'title', width: 30 },
-    { header: 'Class', key: 'class', width: 15 },
-    { header: 'Subject', key: 'subject', width: 25 },
-    { header: 'Total Marks', key: 'marks', width: 15 },
-    { header: 'Due Date', key: 'due', width: 25 },
-  ]);
-  for (const q of quizRecords) {
-    const cls = classes.find(c => c._id.toString() === q.classId.toString());
-    const sub = subjects.find(s => s._id.toString() === q.subjectId?.toString());
-    qSheet.addRow({
-        title: q.title,
-        class: cls?.name,
-        subject: sub?.name,
-        marks: q.totalMarks,
-        due: q.dueDate.toDateString()
-    });
-  }
-
-  // 7. Assignments Sheet
-  const asSheet = setupSheet('Assignments', [
-    { header: 'Title', key: 'title', width: 30 },
-    { header: 'Class', key: 'class', width: 15 },
-    { header: 'Subject', key: 'subject', width: 25 },
-    { header: 'Due Date', key: 'due', width: 25 },
-  ]);
-  for (const a of assignmentRecords) {
-    const cls = classes.find(c => c._id.toString() === a.classId.toString());
-    const sub = subjects.find(s => s._id.toString() === a.subjectId.toString());
-    asSheet.addRow({
-        title: a.title,
-        class: cls?.name,
-        subject: sub?.name,
-        due: a.dueDate.toDateString()
-    });
-  }
-
-  // 8. Notices Sheet
-  const nSheet = setupSheet('Notices', [
-    { header: 'Title', key: 'title', width: 30 },
-    { header: 'Audience', key: 'audience', width: 15 },
-    { header: 'Priority', key: 'priority', width: 10 },
-    { header: 'Date', key: 'date', width: 25 },
-  ]);
-  for (const n of noticeRecords) {
-    nSheet.addRow({
-        title: n.title,
-        audience: n.audience,
-        priority: n.priority,
-        date: n.date.toDateString()
-    });
-  }
-
-  // 9. Attendance Sheet
-  const attSheet = setupSheet('Attendance Summary', [
-    { header: 'Date', key: 'date', width: 15 },
-    { header: 'Class', key: 'class', width: 15 },
-    { header: 'Present', key: 'present', width: 10 },
-    { header: 'Absent', key: 'absent', width: 10 },
-  ]);
-  for (const att of attendanceRecords) {
-    const cls = classes.find(c => c._id.toString() === att.classId.toString());
-    const presentCount = att.students.filter(s => s.status === 'present').length;
-    const absentCount = att.students.filter(s => s.status === 'absent').length;
-    attSheet.addRow({
-        date: att.date.toDateString(),
-        class: cls?.name,
-        present: presentCount,
-        absent: absentCount
-    });
-  }
 
   const excelPath = path.join(process.cwd(), 'BCA_Login_Credentials.xlsx');
   await workbook.xlsx.writeFile(excelPath);

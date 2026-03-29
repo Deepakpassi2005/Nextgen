@@ -146,12 +146,8 @@ export const useNoticeStore = create<NoticeState>((set, get) => ({
           });
 
           await apiClient.post(`${endpoint}/${noticeId}/attachments`, fd, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-            transformRequest: (data) => data,
+            headers: { 'Content-Type': 'multipart/form-data' },
           });
-
         }
 
         await get().loadNotices();
@@ -202,12 +198,8 @@ export const useNoticeStore = create<NoticeState>((set, get) => ({
 
         if ((fd as any).getParts && (fd as any).getParts().length > 0) {
           await apiClient.post(`${endpoint}/${id}/attachments`, fd, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-            transformRequest: (data) => data,
+            headers: { 'Content-Type': 'multipart/form-data' },
           });
-
         }
       }
 

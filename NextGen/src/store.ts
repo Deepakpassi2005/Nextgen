@@ -142,7 +142,8 @@ export const useQuizStore = create<QuizState>((set, get) => ({
       } else if (user.role === 'student') {
         const response = await apiClient.get('/student/quizzes');
         const backendQuizzes = response.data.data;
- 
+
+
         const mappedQuizzes: Quiz[] = backendQuizzes.map((q: any) => ({
           id: q._id,
           title: q.title,

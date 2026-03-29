@@ -215,6 +215,7 @@ const ProfileScreen = ({ navigation }: any) => {
                         ? `${API_BASE_URL}/${profile.studentPhoto}`
                         : `${API_BASE_URL}/uploads/${profile.studentPhoto}`
                   }} 
+
                   style={styles.avatar} 
                 />
               ) : (

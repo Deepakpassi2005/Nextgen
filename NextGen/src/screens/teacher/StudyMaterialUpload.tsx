@@ -139,9 +139,7 @@ const StudyMaterialUpload = () => {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-        transformRequest: (data) => data, // Essential for some RN Axios versions
       });
-
 
       Alert.alert('Success', `${files.length} study material(s) uploaded successfully!`, [
         { text: 'OK', onPress: () => navigation.goBack() }

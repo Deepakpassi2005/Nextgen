@@ -79,7 +79,7 @@ export const assignmentValidators = [
   body('title').trim().notEmpty().withMessage('Assignment title is required'),
   body('description').optional({ checkFalsy: true }).trim(),
   body('classId').notEmpty().withMessage('Class ID is required'),
-  body('subjectId').notEmpty().withMessage('Subject ID is required'),
+
   body('dueDate').isISO8601().withMessage('Valid due date is required'),
 ];
 

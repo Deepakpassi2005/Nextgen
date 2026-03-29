@@ -229,16 +229,8 @@ export const getStudentsByClass = async (req: Request, res: Response) => {
 
 export const uploadStudentPhoto = async (req: AuthRequest, res: Response) => {
   try {
-    console.log(`[student.uploadPhoto] Starting for user: ${req.user?.id}`);
-
-    if (!req.file) {
-      console.warn('[student.uploadPhoto] No file provided in request');
-      return sendError(res, 'No photo uploaded', 400);
-    }
-
-    // Path should be relative to the 'uploads' directory for static serving
+    if (!req.file) return sendError(res, 'No photo uploaded', 400);
     const photoPath = `uploads/profiles/students/${req.file.filename}`;
-    console.log(`[student.uploadPhoto] File saved: ${req.file.path}, DB path: ${photoPath}`);
     
     // Update student record
     const updated = await Student.findByIdAndUpdate(
@@ -247,16 +239,11 @@ export const uploadStudentPhoto = async (req: AuthRequest, res: Response) => {
       { new: true }
     );
 
-    if (!updated) {
-      console.error(`[student.uploadPhoto] Student not found: ${req.user?.id}`);
-      return sendError(res, 'Student profile not found', 404);
-    }
+    if (!updated) return sendError(res, 'Student not found', 404);
 
-    console.log(`[student.uploadPhoto] Successfully updated student: ${updated.email}`);
     return sendSuccess(res, { photoPath, student: updated });
-  } catch (err: any) {
-    const errorMsg = `Student Photo Controller Error: ${err.message || 'Unknown failure during DB update or file processing'}`;
-    console.error(`[student.uploadPhoto] CRITICAL ERROR: ${errorMsg}`, err);
-    return sendError(res, errorMsg, 500);
+  } catch (err) {
+    console.error('[student.uploadPhoto]', err);
+    return sendError(res, 'Failed to upload photo');
   }
 };

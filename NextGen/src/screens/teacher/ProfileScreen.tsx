@@ -123,12 +123,8 @@ const ProfileScreen = ({ navigation }: { navigation: StackNavigationProp<any> })
 
       setUploading(true);
       const response = await apiClient.post('/teacher/upload-photo', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-        transformRequest: (data) => data,
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-
 
       setProfile({ ...profile, profilePhoto: response.data.data.photoPath });
       Alert.alert('Success', 'Photo uploaded successfully');

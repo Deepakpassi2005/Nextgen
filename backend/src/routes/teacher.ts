@@ -75,7 +75,8 @@ router.put('/result/:id', resultCtrl.updateResult);
 router.delete('/result/:id', resultCtrl.deleteResult);
 
 // assignments
-router.post('/assignments', assignmentUpload.array('files', 5), assignmentValidators, runValidation, assignmentCtrl.createAssignment);
+router.post('/assignments', assignmentUpload.array('files', 5), assignmentCtrl.createAssignment);
+
 router.get('/assignments/class/:classId', assignmentCtrl.getAssignmentsByClass);
 router.put('/assignments/:id', assignmentUpload.array('files', 5), assignmentValidators, runValidation, assignmentCtrl.updateAssignment);
 router.delete('/assignments/:id', assignmentCtrl.deleteAssignment);

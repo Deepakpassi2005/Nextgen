@@ -73,7 +73,6 @@ const AssignmentSubmitScreen = ({ route, navigation }: any) => {
         },
         transformRequest: (data) => data,
       });
-
       
       Alert.alert('Success', 'Assignment submitted successfully!');
       navigation.goBack();

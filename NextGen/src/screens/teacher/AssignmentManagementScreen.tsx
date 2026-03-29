@@ -201,7 +201,6 @@ const AssignmentManagementScreen = ({ navigation }: { navigation: StackNavigatio
         },
         transformRequest: (data) => data,
       });
-
       Alert.alert('Success', 'Assignment posted and students notified successfully!');
       setCreateModalVisible(false);
       

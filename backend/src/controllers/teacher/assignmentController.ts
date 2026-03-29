@@ -71,9 +71,9 @@ export const createAssignment = async (req: Request, res: Response) => {
     }).catch(e => console.error('Failed to send assignment push:', e));
 
     return sendSuccess(res, assignment, 201);
-  } catch (error: any) {
-    console.error('Error creating assignment details:', error);
-    return sendError(res, `Failed to create assignment: ${error.message || 'Unknown error'}`, 400);
+  } catch (error) {
+    console.error('Error creating assignment:', error);
+    return sendError(res, 'Failed to create assignment');
   }
 };
 

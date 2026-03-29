@@ -7,7 +7,6 @@ export interface IQuiz extends Document {
   subjectId?: mongoose.Types.ObjectId;
   teacherId: mongoose.Types.ObjectId;
   questions: {
-    _id: mongoose.Types.ObjectId;
     question: string;
     options: string[];
     answer: string;
