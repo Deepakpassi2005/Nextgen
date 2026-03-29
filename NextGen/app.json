@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "NextGen",
+    "slug": "NextGen",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/appicon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splishIcon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.omshankarzefsudo.nextgen",
+      "googleServicesFile": "./google-services.json",
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/appicon.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-dev-client"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6e25f965-430d-4b06-8d63-c77c835582b8"
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\components\GlassCard.tsx
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\context\AuthContext.tsx

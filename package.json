@@ -1,0 +1,25 @@
+{
+  "name": "asset-manager",
+  "version": "1.0.0",
+  "type": "module",
+  "license": "MIT",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "build": "npm install --workspaces --include=dev && cd backend && npm run build",
+    "start": "cd backend && npm start",
+    "check": "npm run check --workspaces"
+  },
+  "description": "Asset Manager - Full-stack web application",
+  "dependencies": {
+    "expo": "^55.0.7",
+    "mongodb": "^7.1.0",
+    "twilio": "^5.13.0"
+  }
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "{option.isCorrect && <"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "text": "{hasNewUpdates && <"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "text": "{student.rollNo && <"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "text": "{isSelected && <"
+  }
+]

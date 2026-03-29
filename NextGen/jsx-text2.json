@@ -1,0 +1,357 @@
+[
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "text": "setShowPriorityMenu(true)}\n                      >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudentDashboard.tsx",
+    "text": "navigation.navigate('Profile')}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudentDashboard.tsx",
+    "text": "navigation.navigate('Timetable')}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudentDashboard.tsx",
+    "text": "navigation.navigate('QuizAttempt')}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudentDashboard.tsx",
+    "text": "navigation.navigate('StudyMaterial')}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudentDashboard.tsx",
+    "text": "navigation.navigate('NoticeHistory')}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudentDashboard.tsx",
+    "text": "navigation.navigate('NoticeHistory')}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudentDashboard.tsx",
+    "text": "navigation.navigate('NoticeDetail', { \n              notice: { \n                id: notice._id, \n                title: notice.title, \n                message: notice.content, \n                timestamp: new Date(notice.createdAt).getTime(), \n                priority: notice.priority,\n                recipient: 'class' \n              } \n            })}\n          >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudyMaterialList.tsx",
+    "text": "toggleExpand(item._id)}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudyMaterialList.tsx",
+    "text": "handleDownloadAttachment(item._id, att, item.title)}\n                    disabled={isDownloading}\n                  >\n                    {isDownloading ? (",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudyMaterialList.tsx",
+    "text": "handleFilter(subject)}\n            >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\TimetableScreen.tsx",
+    "text": "setActiveDay(day)}\n          >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "text": "navigation.goBack()}\n        style={styles.backBtn}\n      >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "text": "setClassDropdownVisible(true)}\n          >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "text": "changeDate(-1)} style={styles.dateArrow}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "text": "changeDate(1)} style={styles.dateArrow}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "text": "setClassDropdownVisible(false)}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "text": "setStatus(item._id, 'present')}\n                    >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "text": "setStatus(item._id, 'late')}\n                    >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "text": "setStatus(item._id, 'absent')}\n                    >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MessagingScreen.tsx",
+    "text": "setIsSelectingStudents(false)} style={styles.backBtnWrapper}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MessagingScreen.tsx",
+    "text": "setIsSelectingStudents(false)}\n            style={styles.doneBtn}\n          >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MessagingScreen.tsx",
+    "text": "setSearchQuery('')}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MessagingScreen.tsx",
+    "text": "toggleStudent(item._id)}\n                    style={[\n                        styles.studentCard,\n                        selectedStudents.includes(item._id) && styles.studentCardActive\n                    ]}\n                >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MessagingScreen.tsx",
+    "text": "setTargetType('admin')}\n                >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MessagingScreen.tsx",
+    "text": "setTargetType('class')}\n                >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ProfileScreen.tsx",
+    "text": "navigation.goBack()} style={styles.backBtnWrapper}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\PunchingScreen.tsx",
+    "text": "navigation.goBack()} style={styles.backBtn}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "setIsCreating(true)}\n                style={styles.addBtn}\n            >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "setIsCreating(true)}\n                    >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "handleEditQuiz(quiz)}\n                                      style={styles.cardActionBtn}\n                                  >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "handleDeleteQuiz(quiz.id, quiz.title)}\n                                      style={[styles.cardActionBtn, { backgroundColor: COLORS.error + '10' }]}\n                                  >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "setClassMenuVisible(true)}\n                      >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "setSubjectMenuVisible(true)}\n                  >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "setExpandedQuestion(expandedQuestion === question.id ? null : question.id)}\n                  style={styles.questionBar}\n                >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "toggleOptionCorrect(question.id, option.id)}\n                              style={[\n                                styles.checkCircle,\n                                option.isCorrect && styles.checkCircleActive\n                              ]}\n                            >\n                              {option.isCorrect &&",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "handleRemoveQuestion(question.id)}\n                    >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "setClassMenuVisible(false)}\n          >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "text": "setSubjectMenuVisible(false)}\n          >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "text": "setPickerType(type)}\n      >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "text": "setActiveTab('post')}\n          >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "text": "setActiveTab('post')} style={styles.emptyAction}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "text": "handleEdit(record)} style={styles.actionIconBtn}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "text": "handleDelete(record._id)} style={[styles.actionIconBtn, { backgroundColor: COLORS.error + '10' }]}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "text": "setIsMarkingModalVisible(false)} style={styles.modalCloseBtn}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "text": "setPickerType(null)}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "handleDelete(item._id, item.title)}\n            >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "toggleExpand(item._id)}\n            >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "handleDownload({ ...att, title: item.title })}\n                      >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "handleDeleteAttachment(item._id, att.fileUrl, att.fileName)}\n                      >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "navigation.goBack()}\n          style={styles.backBtn}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "setClassModalVisible(true)}\n            >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "filterClass !== 'all' && setSubjectModalVisible(true)}\n              disabled={filterClass === 'all'}\n            >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "navigation.navigate('StudyMaterialUpload')}\n          >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "navigation.navigate('StudyMaterialUpload')}\n            >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "setPreviewVisible(false)} style={styles.closeBtn}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "handleDownload(selectedMaterial)}\n                  disabled={downloading}\n                >\n                  {downloading ? (",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "setClassModalVisible(false)}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "setClassModalVisible(false)}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "setSubjectModalVisible(false)}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "setSubjectModalVisible(false)}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "setViewerVisible(false)} style={styles.viewerCloseBtn}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "text": "handleDownload(selectedMaterial)}\n              style={styles.viewerDownloadBtn}\n            >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialUpload.tsx",
+    "text": "navigation.goBack()}\n          style={styles.backBtn}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialUpload.tsx",
+    "text": "removeFile(index)}\n                      style={styles.removeFileBtn}\n                    >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialUpload.tsx",
+    "text": "setShowClassModal(false)}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialUpload.tsx",
+    "text": "handleClassSelect(item)}\n                >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialUpload.tsx",
+    "text": "setShowSubjectModal(false)}\n        >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\TeacherDashboard.tsx",
+    "text": "navigation.navigate('Profile')}\n            >",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\TeacherDashboard.tsx",
+    "text": "navigation.navigate('NoticeHistory')}>",
+    "parent": "TouchableOpacity"
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\TeacherDashboard.tsx",
+    "text": "navigation.navigate('NoticeDetail', { \n                  notice: { \n                    id: notice._id, \n                    title: notice.title, \n                    message: notice.content, \n                    timestamp: new Date(notice.createdAt).getTime(), \n                    priority: notice.priority,\n                    recipient: 'all' \n                  } \n                })}\n              >",
+    "parent": "TouchableOpacity"
+  }
+]

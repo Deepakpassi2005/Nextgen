@@ -1,0 +1,338 @@
+[
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\components\\CustomButton.tsx",
+    "expType": "Identifier",
+    "parent": "View",
+    "line": 51,
+    "parentLine": 51
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\components\\GlassCard.tsx",
+    "expType": "Identifier",
+    "parent": "View",
+    "line": 16,
+    "parentLine": 14
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\context\\AuthContext.tsx",
+    "expType": "Identifier",
+    "parent": "AuthContext.Provider",
+    "line": 63,
+    "parentLine": 62
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\NoticeDetail.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 120,
+    "parentLine": 118
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "expType": "CallExpression",
+    "parent": "Menu",
+    "line": 269,
+    "parentLine": 255
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 348,
+    "parentLine": 347
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "expType": "MemberExpression",
+    "parent": "Chip",
+    "line": 356,
+    "parentLine": 349
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\notice\\SendNotice.tsx",
+    "expType": "CallExpression",
+    "parent": "ScrollView",
+    "line": 396,
+    "parentLine": 395
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\ProfileScreen.tsx",
+    "expType": "Identifier",
+    "parent": "View",
+    "line": 73,
+    "parentLine": 73
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 110,
+    "parentLine": 109
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 113,
+    "parentLine": 112
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 116,
+    "parentLine": 106
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 117,
+    "parentLine": 106
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 118,
+    "parentLine": 106
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 123,
+    "parentLine": 121
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 126,
+    "parentLine": 125
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 129,
+    "parentLine": 128
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 132,
+    "parentLine": 121
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\QuizAttemptScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "Fragment",
+    "line": 209,
+    "parentLine": 207
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\QuizAttemptScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "Fragment",
+    "line": 216,
+    "parentLine": 215
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\QuizAttemptScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "RadioButton.Group",
+    "line": 228,
+    "parentLine": 224
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudyMaterialList.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 163,
+    "parentLine": 162
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\StudyMaterialList.tsx",
+    "expType": "CallExpression",
+    "parent": "ScrollView",
+    "line": 215,
+    "parentLine": 214
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\student\\TimetableScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "ScrollView",
+    "line": 51,
+    "parentLine": 50
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "ScrollView",
+    "line": 269,
+    "parentLine": 268
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "SafeAreaView",
+    "line": 301,
+    "parentLine": 300
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "SafeAreaView",
+    "line": 302,
+    "parentLine": 300
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MarkAttendanceScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "SafeAreaView",
+    "line": 386,
+    "parentLine": 300
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\MessagingScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 262,
+    "parentLine": 261
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ProfileScreen.tsx",
+    "expType": "Identifier",
+    "parent": "View",
+    "line": 117,
+    "parentLine": 117
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 194,
+    "parentLine": 193
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 195,
+    "parentLine": 193
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 196,
+    "parentLine": 193
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 197,
+    "parentLine": 193
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 207,
+    "parentLine": 206
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 208,
+    "parentLine": 206
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ProfileScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "GlassCard",
+    "line": 209,
+    "parentLine": 206
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\QuizManagementScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 513,
+    "parentLine": 512
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "expType": "Identifier",
+    "parent": "GlassCard",
+    "line": 289,
+    "parentLine": 288
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 363,
+    "parentLine": 362
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 365,
+    "parentLine": 362
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\ResultManagementScreen.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 369,
+    "parentLine": 368
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "expType": "CallExpression",
+    "parent": "Animated.View",
+    "line": 283,
+    "parentLine": 282
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "expType": "CallExpression",
+    "parent": "ScrollView",
+    "line": 555,
+    "parentLine": 544
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialManagement.tsx",
+    "expType": "CallExpression",
+    "parent": "ScrollView",
+    "line": 603,
+    "parentLine": 592
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialUpload.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 247,
+    "parentLine": 246
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialUpload.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 250,
+    "parentLine": 249
+  },
+  {
+    "file": "C:\\Users\\rehan\\OneDrive\\Desktop\\Asset-Manager\\NextGen\\src\\screens\\teacher\\StudyMaterialUpload.tsx",
+    "expType": "CallExpression",
+    "parent": "View",
+    "line": 283,
+    "parentLine": 282
+  }
+]

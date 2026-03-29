@@ -1,0 +1,10 @@
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\screens\teacher\TeacherDashboard.tsx
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\screens\teacher\StudyMaterialUpload.tsx
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\screens\teacher\StudyMaterialManagement.tsx
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\screens\teacher\ResultManagementScreen.tsx
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\screens\teacher\QuizManagementScreen.tsx
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\screens\teacher\PunchingScreen.tsx
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\screens\teacher\ProfileScreen.tsx
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\screens\teacher\MessagingScreen.tsx
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\screens\teacher\MarkAttendanceScreen.tsx
+C:\Users\rehan\OneDrive\Desktop\Asset-Manager\NextGen\src\screens\student\TimetableScreen.tsx
