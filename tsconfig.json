@@ -39,6 +39,5 @@
         "./backend/src/shared/*"
       ]
     }
-  },
-  "extends": "expo/tsconfig.base"
+  }
 }
